@@ -1,0 +1,7 @@
+/*.elf
+/*.cbp
+/build
+*.rpx
+*.bin
+*.cscope_file_list
+*.layout
