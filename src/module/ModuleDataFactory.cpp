@@ -44,7 +44,25 @@ ModuleData * ModuleDataFactory::load(std::string path, uint32_t destination_addr
 
     uint8_t **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
 
-    uint32_t baseOffset = destination_address;
+
+    uint32_t sizeOfModule = 0;
+    for(uint32_t i = 0; i < sec_num; ++i ) {
+        section* psec = reader.sections[i];
+        if (psec->get_type() == 0x80000002) {
+            continue;
+        }
+
+        if ((psec->get_type() == SHT_PROGBITS || psec->get_type() == SHT_NOBITS) && (psec->get_flags() & SHF_ALLOC)) {
+            sizeOfModule += psec->get_size() + 1;
+        }
+    }
+
+    if(sizeOfModule > maximum_size){
+        DEBUG_FUNCTION_LINE("Module is too big.");
+        return NULL;
+    }
+
+    uint32_t baseOffset = (destination_address -sizeOfModule) & 0xFFFFFF00;
 
     uint32_t offset_text = baseOffset;
     uint32_t offset_data = offset_text;
@@ -87,10 +105,10 @@ ModuleData * ModuleDataFactory::load(std::string path, uint32_t destination_addr
             const char* p = reader.sections[i]->get_data();
 
             if(psec->get_type() == SHT_NOBITS) {
-                DEBUG_FUNCTION_LINE("memset section %s %08X to 0 (%d bytes)\n", psec->get_name().c_str(), destination, sectionSize);
+                DEBUG_FUNCTION_LINE("memset section %s %08X [%08X] to 0 (%d bytes)\n", psec->get_name().c_str(), destination, destination + sectionSize, sectionSize);
                 memset((void*) destination, 0, sectionSize);
             } else if(psec->get_type() == SHT_PROGBITS) {
-                DEBUG_FUNCTION_LINE("Copy section %s %08X -> %08X (%d bytes)\n", psec->get_name().c_str(), p, destination, sectionSize);
+                DEBUG_FUNCTION_LINE("Copy section %s %08X -> %08X [%08X] (%d bytes)\n", psec->get_name().c_str(), p, destination, destination + sectionSize, sectionSize);
                 memcpy((void*) destination, p, sectionSize);
             }
 
@@ -241,6 +259,7 @@ bool ModuleDataFactory::linkSection(elfio& reader, uint32_t section_index, uint3
                     return false;
                 }
             }
+            DEBUG_FUNCTION_LINE("done\n");
         }
     }
     return true;

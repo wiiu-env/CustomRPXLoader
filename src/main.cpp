@@ -64,7 +64,7 @@ extern "C" int _start(int argc, char **argv) {
         uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
         moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
-        ModuleData * moduleData = ModuleDataFactory::load("sd:/wiiu/payload.rpx", ApplicationMemoryEnd, 0x00FFF000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+        ModuleData * moduleData = ModuleDataFactory::load("sd:/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
         if(moduleData != NULL) {
             DEBUG_FUNCTION_LINE("Loaded module data\n");
             std::vector<RelocationData *> relocData = moduleData->getRelocationDataList();
