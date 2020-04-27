@@ -18,11 +18,8 @@
 #include "utils/utils.h"
 #include "utils/sd_fat_devoptab.h"
 
-#define gModuleData ((module_information_t *) (0x00880000))
-static_assert(sizeof(module_information_t) <= 0x80000);
 
 bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin_entry_t * tramp_data, uint32_t tramp_length);
-
 
 bool CheckRunning() {
 
@@ -58,8 +55,15 @@ extern "C" int _start(int argc, char **argv) {
         uint32_t ApplicationMemoryEnd;
 
         asm volatile("lis %0, __CODE_END@h; ori %0, %0, __CODE_END@l" : "=r" (ApplicationMemoryEnd));
-        ApplicationMemoryEnd = (ApplicationMemoryEnd + 0x10000) & 0xFFFF0000;
         ModuleData * moduleData = ModuleDataFactory::load("sd:/wiiu/payload.rpx", ApplicationMemoryEnd, 0x01000000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+
+        ApplicationMemoryEnd = (ApplicationMemoryEnd + 0x100) & 0xFFFFFF00;
+
+        module_information_t * gModuleData = (module_information_t *) ApplicationMemoryEnd;
+
+        uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
+        moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
+
         if(moduleData != NULL) {
             DEBUG_FUNCTION_LINE("Loaded module data\n");
             std::vector<RelocationData *> relocData = moduleData->getRelocationDataList();
