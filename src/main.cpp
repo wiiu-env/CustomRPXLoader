@@ -44,6 +44,7 @@ bool CheckRunning() {
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
     InitFunctionPointers();
+    doKernelSetup2();
 
     socket_lib_init();
     log_init();
@@ -55,7 +56,6 @@ extern "C" int _start(int argc, char **argv) {
         uint32_t ApplicationMemoryEnd;
 
         asm volatile("lis %0, __CODE_END@h; ori %0, %0, __CODE_END@l" : "=r" (ApplicationMemoryEnd));
-        ModuleData * moduleData = ModuleDataFactory::load("sd:/wiiu/payload.rpx", ApplicationMemoryEnd, 0x01000000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
 
         ApplicationMemoryEnd = (ApplicationMemoryEnd + 0x100) & 0xFFFFFF00;
 
@@ -64,6 +64,7 @@ extern "C" int _start(int argc, char **argv) {
         uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
         moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
+        ModuleData * moduleData = ModuleDataFactory::load("sd:/wiiu/payload.rpx", ApplicationMemoryEnd, 0x00FFF000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
         if(moduleData != NULL) {
             DEBUG_FUNCTION_LINE("Loaded module data\n");
             std::vector<RelocationData *> relocData = moduleData->getRelocationDataList();
@@ -102,7 +103,6 @@ extern "C" int _start(int argc, char **argv) {
 
     return 0;
 }
-
 
 bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin_entry_t * tramp_data, uint32_t tramp_length) {
     for (auto const& curReloc : relocData) {
