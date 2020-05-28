@@ -104,6 +104,10 @@ IMPORT(FSRename);
 IMPORT(FSGetMountSource);
 IMPORT(FSMount);
 IMPORT(FSUnmount);
+IMPORT(FSChangeMode);
+IMPORT(FSGetPosFile);
+IMPORT(OSTicksToCalendarTime);
+IMPORT(__rplwrap_exit);
 
 IMPORT(IOS_Open);
 IMPORT(IOS_Close);

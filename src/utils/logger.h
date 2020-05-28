@@ -1,11 +1,11 @@
-#ifndef __LOGGER_H_
-#define __LOGGER_H_
+#pragma once
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 #include <string.h>
+#include <whb/log.h>
 
 void log_init_();
 //void log_deinit_(void);
@@ -28,11 +28,9 @@ void OSFatal_printf(const char *format, ...);
 #define log_printf(FMT, ARGS...)  log_printf_(FMT, ## ARGS);
 
 #define DEBUG_FUNCTION_LINE(FMT, ARGS...)do { \
-    log_printf("[%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
+    WHBLogPrintf("[%23s]%30s@L%04d: " FMT "",__FILENAME__,__FUNCTION__, __LINE__, ## ARGS); \
     } while (0)
 
 #ifdef __cplusplus
 }
-#endif
-
 #endif

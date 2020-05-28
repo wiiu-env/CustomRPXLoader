@@ -47,7 +47,7 @@ public:
             rplName = rawSectionName.substr(dimport.size());
             data = true;
         } else {
-            DEBUG_FUNCTION_LINE("invalid section name\n");
+            DEBUG_FUNCTION_LINE("invalid section name");
             return NULL;
         }
         return new ImportRPLInformation(rplName, data);

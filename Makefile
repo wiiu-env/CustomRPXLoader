@@ -47,7 +47,7 @@ CFLAGS	:=  -std=gnu11 -mcpu=750 -meabi -mhard-float -ffast-math \
 CXXFLAGS := -std=gnu++11 -mcpu=750 -meabi -mhard-float -ffast-math \
 		    -O2 -Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
 ASFLAGS	:= -mregnames
-LDFLAGS	:= -nostartfiles -Wl,--gc-sections
+LDFLAGS	:= -nostartfiles -Wl,--gc-sections,--allow-multiple-definition
 
 #---------------------------------------------------------------------------------
 Q := @
@@ -55,7 +55,7 @@ MAKEFLAGS += --no-print-directory
 #---------------------------------------------------------------------------------
 # any extra libraries we wish to link with the project
 #---------------------------------------------------------------------------------
-LIBS	:= 
+LIBS	:= -lwut
 
 #---------------------------------------------------------------------------------
 # list of directories containing libraries, this must be the top level containing
@@ -106,8 +106,7 @@ export OFILES	:=	$(CPPFILES:.cpp=.o) $(CFILES:.c=.o) \
 #---------------------------------------------------------------------------------
 export INCLUDE	:=	$(foreach dir,$(INCLUDES),-I$(CURDIR)/$(dir)) \
 					$(foreach dir,$(LIBDIRS),-I$(dir)/include) \
-					-I$(CURDIR)/$(BUILD) -I$(LIBOGC_INC) \
-					-I$(PORTLIBS)/include -I$(PORTLIBS)/include/freetype2
+					-I$(CURDIR)/$(BUILD) -I$(PORTLIBS)/include 
 
 #---------------------------------------------------------------------------------
 # build a list of library paths

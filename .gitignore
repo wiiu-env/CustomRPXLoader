@@ -5,3 +5,6 @@
 *.bin
 *.cscope_file_list
 *.layout
+cmake-build-debug/
+.idea/
+CMakeLists.txt

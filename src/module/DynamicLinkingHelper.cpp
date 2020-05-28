@@ -18,7 +18,7 @@ dyn_linking_function_t * DynamicLinkingHelper::getOrAddFunctionEntryByName(dyn_l
         dyn_linking_function_t * curEntry = &(data->functions[i]);
         if(strlen(curEntry->functionName) == 0) {
             if(strlen(functionName) > DYN_LINK_FUNCTION_NAME_LENGTH) {
-                DEBUG_FUNCTION_LINE("Failed to add function name, it's too long.\n");
+                DEBUG_FUNCTION_LINE("Failed to add function name, it's too long.");
                 return NULL;
             }
             strncpy(curEntry->functionName,functionName,DYN_LINK_FUNCTION_NAME_LENGTH);
@@ -50,7 +50,7 @@ dyn_linking_import_t * DynamicLinkingHelper::getOrAddImport(dyn_linking_relocati
         dyn_linking_import_t * curEntry = &(data->imports[i]);
         if(strlen(curEntry->importName) == 0) {
             if(strlen(importName) > DYN_LINK_IMPORT_NAME_LENGTH) {
-                DEBUG_FUNCTION_LINE("Failed to add Import, it's too long.\n");
+                DEBUG_FUNCTION_LINE("Failed to add Import, it's too long.");
                 return NULL;
             }
             strncpy(curEntry->importName,importName,DYN_LINK_IMPORT_NAME_LENGTH);
@@ -72,13 +72,13 @@ bool DynamicLinkingHelper::addReloationEntry(dyn_linking_relocation_data_t * lin
 bool DynamicLinkingHelper::addReloationEntry(dyn_linking_relocation_data_t * linking_data, dyn_linking_relocation_entry_t * linking_entries, uint32_t linking_entry_length, char type, size_t offset, int32_t addend, void *destination, std::string name, ImportRPLInformation * rplInfo) {
     dyn_linking_import_t * importInfoGbl = DynamicLinkingHelper::getOrAddImport(linking_data, rplInfo->getName().c_str(),rplInfo->isData());
     if(importInfoGbl == NULL) {
-        DEBUG_FUNCTION_LINE("Getting import info failed. Probably maximum of %d rpl files to import reached.\n",DYN_LINK_IMPORT_LIST_LENGTH);
+        DEBUG_FUNCTION_LINE("Getting import info failed. Probably maximum of %d rpl files to import reached.",DYN_LINK_IMPORT_LIST_LENGTH);
         return false;
     }
 
     dyn_linking_function_t * functionInfo = DynamicLinkingHelper::getOrAddFunctionEntryByName(linking_data, name.c_str());
     if(functionInfo == NULL) {
-        DEBUG_FUNCTION_LINE("Getting import info failed. Probably maximum of %d function to be relocated reached.\n",DYN_LINK_FUNCTION_LIST_LENGTH);
+        DEBUG_FUNCTION_LINE("Getting import info failed. Probably maximum of %d function to be relocated reached.",DYN_LINK_FUNCTION_LIST_LENGTH);
         return false;
     }
 
