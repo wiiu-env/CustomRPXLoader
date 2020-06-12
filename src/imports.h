@@ -53,6 +53,10 @@ IMPORT(OSGetSemaphoreCount);
 IMPORT(OSSignalSemaphore);
 IMPORT(OSWaitSemaphore);
 IMPORT(OSTryWaitSemaphore);
+IMPORT(OSCompareAndSwapAtomicEx);
+IMPORT(OSCompareAndSwapAtomic);
+IMPORT(OSGetThreadSpecific);
+IMPORT(OSSetThreadSpecific);
 
 IMPORT(exit);
 IMPORT(_Exit);

@@ -42,10 +42,8 @@ INCLUDES	:=  src
 #---------------------------------------------------------------------------------
 # options for code generation
 #---------------------------------------------------------------------------------
-CFLAGS	:=  -std=gnu11 -mcpu=750 -meabi -mhard-float -ffast-math \
-		    -O2 -Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
-CXXFLAGS := -std=gnu++11 -mcpu=750 -meabi -mhard-float -ffast-math \
-		    -O2 -Wall -Wextra -Wno-unused-parameter -Wno-strict-aliasing $(INCLUDE)
+CFLAGS	:=  -std=c2x -g -Wall -O2 -ffunction-sections -DESPRESSO -mcpu=750 -meabi -mhard-float $(INCLUDE)
+CXXFLAGS := -std=c++20 -g -Wall -O2 -ffunction-sections -DESPRESSO -mcpu=750 -meabi -mhard-float $(INCLUDE)
 ASFLAGS	:= -mregnames
 LDFLAGS	:= -nostartfiles -Wl,--gc-sections,--allow-multiple-definition
 
