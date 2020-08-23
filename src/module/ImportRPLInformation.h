@@ -31,7 +31,7 @@ public:
     ~ImportRPLInformation() {
     }
 
-    static ImportRPLInformation * createImportRPLInformation(std::string rawSectionName) {
+    static ImportRPLInformation *createImportRPLInformation(std::string rawSectionName) {
         std::string fimport = ".fimport_";
         std::string dimport = ".dimport_";
 
@@ -39,7 +39,7 @@ public:
 
         std::string rplName = "";
 
-        if(rawSectionName.size() < fimport.size()) {
+        if (rawSectionName.size() < fimport.size()) {
             return NULL;
         } else if (std::equal(fimport.begin(), fimport.end(), rawSectionName.begin())) {
             rplName = rawSectionName.substr(fimport.size());

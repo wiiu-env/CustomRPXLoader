@@ -8,4 +8,5 @@
 
 
 void doKernelSetup();
+
 void doKernelSetup2();

@@ -27,8 +27,8 @@ public:
     }
 
     ~ModuleData() {
-        for (auto const& reloc : relocation_data_list) {
-            if(reloc != NULL) {
+        for (auto const &reloc : relocation_data_list) {
+            if (reloc != NULL) {
                 delete reloc;
             }
         }
@@ -48,7 +48,7 @@ public:
         this->entrypoint = addr;
     }
 
-    void addRelocationData(RelocationData * relocation_data) {
+    void addRelocationData(RelocationData *relocation_data) {
         relocation_data_list.push_back(relocation_data);
     }
 
@@ -77,6 +77,7 @@ public:
     }
 
     std::string toString();
+
 private:
     std::vector<RelocationData *> relocation_data_list;
 
