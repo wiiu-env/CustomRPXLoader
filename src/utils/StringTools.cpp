@@ -270,20 +270,22 @@ char *StringTools::str_replace(char *orig, char *rep, char *with) {
     if (len_rep == 0) {
         return NULL;
     } // empty rep causes infinite loop during count
-    if (!with)
-        with = "";
+    if (!with) {
+        with = (char *) "";
+    }
     len_with = strlen(with);
 
     // count the number of replacements needed
     ins = orig;
-    for (count = 0; tmp = strstr(ins, rep); ++count) {
+    for (count = 0; (tmp = strstr(ins, rep)); ++count) {
         ins = tmp + len_rep;
     }
 
     tmp = result = (char *) malloc(strlen(orig) + (len_with - len_rep) * count + 1);
 
-    if (!result)
+    if (!result) {
         return NULL;
+    }
 
     // first time through the loop, all the variable are set correctly
     // from here on,
