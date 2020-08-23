@@ -31,11 +31,9 @@
 #include <whb/log.h>
 #include <whb/log_udp.h>
 
-#include "main.h"
 #include "kernel.h"
 #include "dynamic.h"
 #include "utils/logger.h"
-#include "utils/utils.h"
 
 bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
 

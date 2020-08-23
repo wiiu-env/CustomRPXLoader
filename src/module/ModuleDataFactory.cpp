@@ -21,7 +21,6 @@
 #include <coreinit/cache.h>
 #include "ModuleDataFactory.h"
 #include "elfio/elfio.hpp"
-#include "utils/utils.h"
 #include "../ElfUtils.h"
 
 using namespace ELFIO;
