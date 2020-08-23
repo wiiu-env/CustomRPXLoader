@@ -23,7 +23,14 @@
 #define KERN_SYSCALL_TBL_4                          0xFFEAAA60 // works with home menu
 #define KERN_SYSCALL_TBL_5                          0xFFEAAE60 // works with browser (previously KERN_SYSCALL_TBL)
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 void doKernelSetup();
 
 void doKernelSetup2();
+
+#ifdef __cplusplus
+}
+#endif
