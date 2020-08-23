@@ -25,24 +25,19 @@
 
 using namespace ELFIO;
 
-ModuleData *ModuleDataFactory::load(std::string path, uint32_t destination_address, uint32_t maximum_size, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length) {
+std::optional<ModuleData> ModuleDataFactory::load(const std::string &path, uint32_t destination_address, uint32_t maximum_size, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length) {
     elfio reader;
-    ModuleData *moduleData = new ModuleData();
-    if (moduleData == NULL) {
-        return NULL;
-    }
+    ModuleData moduleData;
 
     // Load ELF data
     if (!reader.load(path)) {
-        DEBUG_FUNCTION_LINE("Can't find or process ELF file");
-        delete moduleData;
-        return NULL;
+        DEBUG_FUNCTION_LINE("Can't find or process %s", path.c_str());
+        return {};
     }
 
     uint32_t sec_num = reader.sections.size();
 
     uint8_t **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
-
 
     uint32_t sizeOfModule = 0;
     for (uint32_t i = 0; i < sec_num; ++i) {
@@ -58,7 +53,7 @@ ModuleData *ModuleDataFactory::load(std::string path, uint32_t destination_addre
 
     if (sizeOfModule > maximum_size) {
         DEBUG_FUNCTION_LINE("Module is too big.");
-        return NULL;
+        return {};
     }
 
     uint32_t baseOffset = (destination_address - sizeOfModule) & 0xFFFFFF00;
@@ -97,8 +92,7 @@ ModuleData *ModuleDataFactory::load(std::string path, uint32_t destination_addre
             } else {
                 DEBUG_FUNCTION_LINE("Unhandled case");
                 free(destinations);
-                delete moduleData;
-                return NULL;
+                return {};
             }
 
             const char *p = reader.sections[i]->get_data();
@@ -113,10 +107,10 @@ ModuleData *ModuleDataFactory::load(std::string path, uint32_t destination_addre
 
             //nextAddress = ROUNDUP(destination + sectionSize,0x100);
             if (psec->get_name().compare(".bss") == 0) {
-                moduleData->setBSSLocation(destination, sectionSize);
+                moduleData.setBSSLocation(destination, sectionSize);
                 DEBUG_FUNCTION_LINE("Saved %s section info. Location: %08X size: %08X", psec->get_name().c_str(), destination, sectionSize);
             } else if (psec->get_name().compare(".sbss") == 0) {
-                moduleData->setSBSSLocation(destination, sectionSize);
+                moduleData.setSBSSLocation(destination, sectionSize);
                 DEBUG_FUNCTION_LINE("Saved %s section info. Location: %08X size: %08X", psec->get_name().c_str(), destination, sectionSize);
             }
             totalSize += sectionSize;
@@ -133,31 +127,30 @@ ModuleData *ModuleDataFactory::load(std::string path, uint32_t destination_addre
             if (!linkSection(reader, psec->get_index(), (uint32_t) destinations[psec->get_index()], offset_text, offset_data, trampolin_data, trampolin_data_length)) {
                 DEBUG_FUNCTION_LINE("elfLink failed");
                 free(destinations);
-                delete moduleData;
-                return NULL;
+                return {};
             }
         }
     }
-    std::vector<RelocationData *> relocationData = getImportRelocationData(reader, destinations);
+    std::vector<RelocationData> relocationData = getImportRelocationData(reader, destinations);
 
     for (auto const &reloc : relocationData) {
-        moduleData->addRelocationData(reloc);
+        moduleData.addRelocationData(reloc);
     }
 
-    DCFlushRange((void *) destination_address, totalSize);
-    ICInvalidateRange((void *) destination_address, totalSize);
+    DCFlushRange((void *) baseOffset, totalSize);
+    ICInvalidateRange((void *) baseOffset, totalSize);
 
     free(destinations);
 
-    moduleData->setEntrypoint(entrypoint);
+    moduleData.setEntrypoint(entrypoint);
     DEBUG_FUNCTION_LINE("Saved entrypoint as %08X", entrypoint);
 
     return moduleData;
 }
 
 
-std::vector<RelocationData *> ModuleDataFactory::getImportRelocationData(elfio &reader, uint8_t **destinations) {
-    std::vector<RelocationData *> result;
+std::vector<RelocationData> ModuleDataFactory::getImportRelocationData(const elfio &reader, uint8_t **destinations) {
+    std::vector<RelocationData> result;
     std::map<uint32_t, std::string> infoMap;
 
     uint32_t sec_num = reader.sections.size();
@@ -191,8 +184,8 @@ std::vector<RelocationData *> ModuleDataFactory::getImportRelocationData(elfio &
                 if (adjusted_sym_value < 0xC0000000) {
                     continue;
                 }
-                ImportRPLInformation *rplInfo = ImportRPLInformation::createImportRPLInformation(infoMap[sym_section_index]);
-                if (rplInfo == NULL) {
+                std::optional<ImportRPLInformation> rplInfo = ImportRPLInformation::createImportRPLInformation(infoMap[sym_section_index]);
+                if (!rplInfo) {
                     DEBUG_FUNCTION_LINE("Failed to create import information");
                     break;
                 }
@@ -200,7 +193,7 @@ std::vector<RelocationData *> ModuleDataFactory::getImportRelocationData(elfio &
                 uint32_t section_index = psec->get_info();
 
                 // When these relocations are performed, we don't need the 0xC0000000 offset anymore.
-                RelocationData *relocationData = new RelocationData(type, offset - 0x02000000, addend, (void *) (destinations[section_index] + 0x02000000), sym_name, rplInfo);
+                RelocationData relocationData(type, offset - 0x02000000, addend, (void *) (destinations[section_index] + 0x02000000), sym_name, rplInfo.value());
                 //relocationData->printInformation();
                 result.push_back(relocationData);
             }
@@ -209,7 +202,7 @@ std::vector<RelocationData *> ModuleDataFactory::getImportRelocationData(elfio &
     return result;
 }
 
-bool ModuleDataFactory::linkSection(elfio &reader, uint32_t section_index, uint32_t destination, uint32_t base_text, uint32_t base_data, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length) {
+bool ModuleDataFactory::linkSection(const elfio &reader, uint32_t section_index, uint32_t destination, uint32_t base_text, uint32_t base_data, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length) {
     uint32_t sec_num = reader.sections.size();
 
     for (uint32_t i = 0; i < sec_num; ++i) {

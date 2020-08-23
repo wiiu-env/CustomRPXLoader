@@ -18,6 +18,7 @@
 #pragma once
 
 #include <string>
+#include <optional>
 #include "utils/logger.h"
 
 class ImportRPLInformation {
@@ -31,7 +32,7 @@ public:
     ~ImportRPLInformation() {
     }
 
-    static ImportRPLInformation *createImportRPLInformation(std::string rawSectionName) {
+    static std::optional<ImportRPLInformation> createImportRPLInformation(std::string rawSectionName) {
         std::string fimport = ".fimport_";
         std::string dimport = ".dimport_";
 
@@ -40,24 +41,24 @@ public:
         std::string rplName = "";
 
         if (rawSectionName.size() < fimport.size()) {
-            return NULL;
+            return {};
         } else if (std::equal(fimport.begin(), fimport.end(), rawSectionName.begin())) {
             rplName = rawSectionName.substr(fimport.size());
         } else if (std::equal(dimport.begin(), dimport.end(), rawSectionName.begin())) {
             rplName = rawSectionName.substr(dimport.size());
             data = true;
         } else {
-            DEBUG_FUNCTION_LINE("invalid section name");
-            return NULL;
+            DEBUG_FUNCTION_LINE("invalid section name\n");
+            return {};
         }
-        return new ImportRPLInformation(rplName, data);
+        return ImportRPLInformation(rplName, data);
     }
 
-    std::string getName() {
+    std::string getName() const {
         return name;
     }
 
-    bool isData() {
+    bool isData() const {
         return _isData;
     }
 

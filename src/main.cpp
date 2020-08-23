@@ -35,10 +35,9 @@
 #include "dynamic.h"
 #include "utils/logger.h"
 
-bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
+bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
 
 bool CheckRunning() {
-
     switch (ProcUIProcessMessages(true)) {
         case PROCUI_STATUS_EXITING: {
             return false;
@@ -82,10 +81,10 @@ extern "C" int _start(int argc, char **argv) {
     uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
     moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
-    ModuleData *moduleData = ModuleDataFactory::load("fs:/vol/external01/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - ApplicationMemoryEnd, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
-    if (moduleData != NULL) {
+    std::optional<ModuleData> moduleData = ModuleDataFactory::load("fs:/vol/external01/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - ApplicationMemoryEnd - (sizeof(module_information_t)), gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+    if (!moduleData) {
         DEBUG_FUNCTION_LINE("Loaded module data");
-        std::vector<RelocationData *> relocData = moduleData->getRelocationDataList();
+        std::vector<RelocationData> relocData = moduleData->getRelocationDataList();
         if (!doRelocation(relocData, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH)) {
             DEBUG_FUNCTION_LINE("relocations failed");
         }
@@ -101,7 +100,6 @@ extern "C" int _start(int argc, char **argv) {
         ICInvalidateRange((void *) 0x00800000, 0x00800000);
         DEBUG_FUNCTION_LINE("New entrypoint: %08X", moduleData->getEntrypoint());
         ((int (*)(int, char **)) moduleData->getEntrypoint())(argc, argv);
-        delete moduleData;
     } else {
         DEBUG_FUNCTION_LINE("Failed to load module");
     }
@@ -120,12 +118,12 @@ extern "C" int _start(int argc, char **argv) {
     return 0;
 }
 
-bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
+bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
     for (auto const &curReloc : relocData) {
-        RelocationData *cur = curReloc;
-        std::string functionName = cur->getName();
-        std::string rplName = cur->getImportRPLInformation()->getName();
-        int32_t isData = cur->getImportRPLInformation()->isData();
+        RelocationData cur = curReloc;
+        std::string functionName = cur.getName();
+        std::string rplName = cur.getImportRPLInformation().getName();
+        int32_t isData = cur.getImportRPLInformation().isData();
         OSDynLoad_Module rplHandle = 0;
         OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
 
@@ -134,7 +132,7 @@ bool doRelocation(std::vector<RelocationData *> &relocData, relocation_trampolin
         if (functionAddress == 0) {
             return false;
         }
-        if (!ElfUtils::elfLinkOne(cur->getType(), cur->getOffset(), cur->getAddend(), (uint32_t) cur->getDestination(), functionAddress, tramp_data, tramp_length, RELOC_TYPE_IMPORT)) {
+        if (!ElfUtils::elfLinkOne(cur.getType(), cur.getOffset(), cur.getAddend(), (uint32_t) cur.getDestination(), functionAddress, tramp_data, tramp_length, RELOC_TYPE_IMPORT)) {
             DEBUG_FUNCTION_LINE("Relocation failed");
             return false;
         }
