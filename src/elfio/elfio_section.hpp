@@ -283,7 +283,7 @@ class section_impl : public section
 
                     ret = inflate(&s, Z_FINISH);
                     if (ret != Z_OK && ret != Z_STREAM_END){
-                        DEBUG_FUNCTION_LINE("NOOOO");
+                        DEBUG_FUNCTION_LINE("Failed to inflate elf section.");
                     }
 
                     inflateEnd(&s);
