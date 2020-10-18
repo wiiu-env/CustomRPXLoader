@@ -18,6 +18,7 @@
 #include <stdint.h>
 #include <coreinit/cache.h>
 #include <coreinit/dynload.h>
+#include <coreinit/title.h>
 #include <sysapp/launch.h>
 #include <nsysnet/socket.h>
 #include <proc_ui/procui.h>
@@ -72,10 +73,12 @@ extern "C" int _start(int argc, char **argv) {
 
     WHBLogUdpInit();
 
-    int res = 0;
     // If we load from our CustomRPXLoader the argv is set with "safe.rpx"
     // in this case we don't want to do any ProcUi stuff on error, only on success
     bool doProcUI = (argc != 1 || std::string(argv[0]) != "safe.rpx");
+
+    uint64_t *cfwLaunchedWithPtr = (uint64_t *) 0x00FFFFF8;
+    *cfwLaunchedWithPtr = OSGetTitleID();
 
     uint32_t ApplicationMemoryEnd;
 
