@@ -84,10 +84,11 @@ extern "C" int _start(int argc, char **argv) {
     uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
     moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
-    std::optional<ModuleData> moduleData = ModuleDataFactory::load("fs:/vol/external01/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - ApplicationMemoryEnd - (sizeof(module_information_t)), gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+    // The module will be loaded to 0x00FFF000 - sizeof(payload.rpx)
+    std::optional <ModuleData> moduleData = ModuleDataFactory::load("fs:/vol/external01/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
     if (moduleData) {
         DEBUG_FUNCTION_LINE("Loaded module data");
-        std::vector<RelocationData> relocData = moduleData->getRelocationDataList();
+        std::vector <RelocationData> relocData = moduleData->getRelocationDataList();
         if (!doRelocation(relocData, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH)) {
             DEBUG_FUNCTION_LINE("relocations failed");
         }
