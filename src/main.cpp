@@ -22,6 +22,7 @@
 #include <nsysnet/socket.h>
 #include <proc_ui/procui.h>
 #include <coreinit/foreground.h>
+#include <coreinit/screen.h>
 
 #include "ElfUtils.h"
 #include "module/ModuleData.h"
@@ -30,12 +31,15 @@
 
 #include <whb/log.h>
 #include <whb/log_udp.h>
+#include <utils/StringTools.h>
 
 #include "kernel.h"
 #include "dynamic.h"
 #include "utils/logger.h"
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
+
+void SplashScreen(const char *message, int32_t durationInMs);
 
 bool CheckRunning() {
     switch (ProcUIProcessMessages(true)) {
@@ -84,8 +88,10 @@ extern "C" int _start(int argc, char **argv) {
     uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
     moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
+    std::string filepath("fs:/vol/external01/wiiu/payload.rpx");
+
     // The module will be loaded to 0x00FFF000 - sizeof(payload.rpx)
-    std::optional <ModuleData> moduleData = ModuleDataFactory::load("fs:/vol/external01/wiiu/payload.rpx", 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+    std::optional <ModuleData> moduleData = ModuleDataFactory::load(filepath, 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
     if (moduleData) {
         DEBUG_FUNCTION_LINE("Loaded module data");
         std::vector <RelocationData> relocData = moduleData->getRelocationDataList();
@@ -108,6 +114,7 @@ extern "C" int _start(int argc, char **argv) {
     } else {
         DEBUG_FUNCTION_LINE("Failed to load module, revert main_hook");
         revertMainHook();
+        SplashScreen(StringTools::strfmt("Failed to load \"%s\"", filepath.c_str()).c_str(), 3000);
     }
 
     if (doProcUI) {
@@ -148,4 +155,30 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
     DCFlushRange(tramp_data, tramp_length * sizeof(relocation_trampolin_entry_t));
     ICInvalidateRange(tramp_data, tramp_length * sizeof(relocation_trampolin_entry_t));
     return true;
+}
+
+void SplashScreen(const char *message, int32_t durationInMs) {
+    int32_t screen_buf0_size = 0;
+
+    // Init screen and screen buffers
+    OSScreenInit();
+    screen_buf0_size = OSScreenGetBufferSizeEx(SCREEN_TV);
+    OSScreenSetBufferEx(SCREEN_TV, (void *) 0xF4000000);
+    OSScreenSetBufferEx(SCREEN_DRC, (void *) (0xF4000000 + screen_buf0_size));
+
+    OSScreenEnableEx(SCREEN_TV, 1);
+    OSScreenEnableEx(SCREEN_DRC, 1);
+
+    // Clear screens
+    OSScreenClearBufferEx(SCREEN_TV, 0);
+    OSScreenClearBufferEx(SCREEN_DRC, 0);
+
+    OSScreenPutFontEx(SCREEN_TV, 0, 0, message);
+    OSScreenPutFontEx(SCREEN_DRC, 0, 0, message);
+
+
+    OSScreenFlipBuffersEx(SCREEN_TV);
+    OSScreenFlipBuffersEx(SCREEN_DRC);
+
+    OSSleepTicks(OSMillisecondsToTicks(durationInMs));
 }
