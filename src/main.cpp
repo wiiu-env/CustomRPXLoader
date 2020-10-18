@@ -69,6 +69,9 @@ extern "C" int _start(int argc, char **argv) {
     WHBLogUdpInit();
 
     int res = 0;
+    // If we load from our CustomRPXLoader the argv is set with "safe.rpx"
+    // in this case we don't want to do any ProcUi stuff on error, only on success
+    bool doProcUI = (argc != 1 || std::string(argv[0]) != "safe.rpx");
 
     uint32_t ApplicationMemoryEnd;
 
@@ -100,19 +103,21 @@ extern "C" int _start(int argc, char **argv) {
         ICInvalidateRange((void *) 0x00800000, 0x00800000);
         DEBUG_FUNCTION_LINE("New entrypoint: %08X", moduleData->getEntrypoint());
         ((int (*)(int, char **)) moduleData->getEntrypoint())(argc, argv);
+        doProcUI = true;
     } else {
         DEBUG_FUNCTION_LINE("Failed to load module");
     }
 
-    SYSLaunchMenu();
-
-    ProcUIInit(OSSavesDone_ReadyToRelease);
-    DEBUG_FUNCTION_LINE("In ProcUI loop");
-    while (CheckRunning()) {
-        // wait.
-        OSSleepTicks(OSMillisecondsToTicks(100));
+    if (doProcUI) {
+        SYSLaunchMenu();
+        ProcUIInit(OSSavesDone_ReadyToRelease);
+        DEBUG_FUNCTION_LINE("In ProcUI loop");
+        while (CheckRunning()) {
+            // wait.
+            OSSleepTicks(OSMillisecondsToTicks(100));
+        }
+        ProcUIShutdown();
     }
-    ProcUIShutdown();
 
     __fini_wut();
     return 0;
