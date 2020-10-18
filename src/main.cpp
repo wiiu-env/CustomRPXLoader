@@ -105,7 +105,8 @@ extern "C" int _start(int argc, char **argv) {
         ((int (*)(int, char **)) moduleData->getEntrypoint())(argc, argv);
         doProcUI = true;
     } else {
-        DEBUG_FUNCTION_LINE("Failed to load module");
+        DEBUG_FUNCTION_LINE("Failed to load module, revert main_hook");
+        revertMainHook();
     }
 
     if (doProcUI) {

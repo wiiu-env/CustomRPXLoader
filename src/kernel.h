@@ -31,6 +31,8 @@ void doKernelSetup();
 
 void doKernelSetup2();
 
+void revertMainHook();
+
 #ifdef __cplusplus
 }
 #endif
