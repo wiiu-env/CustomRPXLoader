@@ -24,6 +24,7 @@
 #include <proc_ui/procui.h>
 #include <coreinit/foreground.h>
 #include <coreinit/screen.h>
+#include <nn/act/client_cpp.h>
 
 #include "ElfUtils.h"
 #include "module/ModuleData.h"
@@ -63,6 +64,8 @@ bool CheckRunning() {
 
 extern "C" void __init_wut();
 extern "C" void __fini_wut();
+
+extern "C" void _SYSLaunchMenuWithCheckingAccount(nn::act::SlotNo slot);
 
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
@@ -121,7 +124,18 @@ extern "C" int _start(int argc, char **argv) {
     }
 
     if (doProcUI) {
-        SYSLaunchMenu();
+        nn::act::Initialize();
+        nn::act::SlotNo slot = nn::act::GetSlotNo();
+        nn::act::SlotNo defaultSlot = nn::act::GetDefaultAccount();
+        nn::act::Finalize();
+
+        if (defaultSlot) {
+            //normal menu boot
+            SYSLaunchMenu();
+        } else {
+            //show mii select
+            _SYSLaunchMenuWithCheckingAccount(slot);
+        }
         ProcUIInit(OSSavesDone_ReadyToRelease);
         DEBUG_FUNCTION_LINE("In ProcUI loop");
         while (CheckRunning()) {

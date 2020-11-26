@@ -229,6 +229,10 @@ IMPORT(ACConnect);
 IMPORT(ACClose);
 IMPORT(ACGetAssignedAddress);
 IMPORT(ACGetAssignedSubnet);
+IMPORT(Initialize__Q2_2nn3actFv);
+IMPORT(GetSlotNo__Q2_2nn3actFv);
+IMPORT(GetDefaultAccount__Q2_2nn3actFv);
+IMPORT(Finalize__Q2_2nn3actFv);
 IMPORT_END();
 
 /* proc_ui */
@@ -266,6 +270,7 @@ IMPORT_BEGIN(sysapp);
 IMPORT(SYSRelaunchTitle);
 IMPORT(_SYSGetSystemApplicationTitleId);
 IMPORT(SYSLaunchMenu);
+IMPORT(_SYSLaunchMenuWithCheckingAccount);
 
 IMPORT_END();
 
