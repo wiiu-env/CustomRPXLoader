@@ -78,7 +78,7 @@ extern "C" int _start(int argc, char **argv) {
 
     // If we load from our CustomRPXLoader the argv is set with "safe.rpx"
     // in this case we don't want to do any ProcUi stuff on error, only on success
-    bool doProcUI = (argc != 1 || std::string(argv[0]) != "safe.rpx");
+    bool doProcUI = (argc >= 1 && std::string(argv[0]) != "safe.rpx");
 
     uint64_t *cfwLaunchedWithPtr = (uint64_t *) 0x00FFFFF8;
     *cfwLaunchedWithPtr = OSGetTitleID();
