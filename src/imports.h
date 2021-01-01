@@ -161,6 +161,7 @@ IMPORT(shutdown);
 IMPORT(socket);
 IMPORT(select);
 IMPORT(socketlasterr);
+IMPORT(socket_lib_finish);
 
 IMPORT_END();
 

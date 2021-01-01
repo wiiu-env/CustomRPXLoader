@@ -38,10 +38,14 @@
 #include "kernel.h"
 #include "dynamic.h"
 #include "utils/logger.h"
+#include <malloc.h>
+#include <coreinit/memexpheap.h>
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
 
 void SplashScreen(const char *message, int32_t durationInMs);
+
+int do_start(int argc, char **argv);
 
 bool CheckRunning() {
     switch (ProcUIProcessMessages(true)) {
@@ -76,6 +80,34 @@ extern "C" int _start(int argc, char **argv) {
 
     WHBLogUdpInit();
 
+    // Save last entry on mem2 heap to detect leaked memory
+    MEMHeapHandle mem2_heap_handle = MEMGetBaseHeapHandle(MEM_BASE_HEAP_MEM2);
+    auto heap = (MEMExpHeap *) mem2_heap_handle;
+    MEMExpHeapBlock *memory_start = heap->usedList.tail;
+
+    int res = do_start(argc, argv);
+
+    // free leaked memory
+    if (memory_start) {
+        int leak_count = 0;
+        while (true) {
+            MEMExpHeapBlock *memory_end = heap->usedList.tail;
+            if (memory_end == memory_start) {
+                break;
+            }
+            free(&memory_end[1]);
+            leak_count++;
+        }
+        DEBUG_FUNCTION_LINE("Freed %d leaked memory blocks", leak_count);
+    }
+
+    WHBLogUdpDeinit();
+
+    __fini_wut();
+    return res;
+}
+
+int do_start(int argc, char **argv) {
     // If we load from our CustomRPXLoader the argv is set with "safe.rpx"
     // in this case we don't want to do any ProcUi stuff on error, only on success
     bool doProcUI = (argc >= 1 && std::string(argv[0]) != "safe.rpx");
@@ -95,12 +127,12 @@ extern "C" int _start(int argc, char **argv) {
     moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
     std::string filepath("fs:/vol/external01/wiiu/payload.rpx");
-
+    int result = 0;
     // The module will be loaded to 0x00FFF000 - sizeof(payload.rpx)
-    std::optional <ModuleData> moduleData = ModuleDataFactory::load(filepath, 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+    std::optional<ModuleData> moduleData = ModuleDataFactory::load(filepath, 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
     if (moduleData) {
         DEBUG_FUNCTION_LINE("Loaded module data");
-        std::vector <RelocationData> relocData = moduleData->getRelocationDataList();
+        std::vector<RelocationData> relocData = moduleData->getRelocationDataList();
         if (!doRelocation(relocData, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH)) {
             DEBUG_FUNCTION_LINE("relocations failed");
         }
@@ -114,13 +146,14 @@ extern "C" int _start(int argc, char **argv) {
         }
         DCFlushRange((void *) 0x00800000, 0x00800000);
         ICInvalidateRange((void *) 0x00800000, 0x00800000);
-        DEBUG_FUNCTION_LINE("New entrypoint: %08X", moduleData->getEntrypoint());
+        DEBUG_FUNCTION_LINE("Calling entrypoint at: %08X", moduleData->getEntrypoint());
         ((int (*)(int, char **)) moduleData->getEntrypoint())(argc, argv);
         doProcUI = true;
     } else {
         DEBUG_FUNCTION_LINE("Failed to load module, revert main_hook");
         revertMainHook();
         SplashScreen(StringTools::strfmt("Failed to load \"%s\"", filepath.c_str()).c_str(), 3000);
+        result = -1;
     }
 
     if (doProcUI) {
@@ -145,8 +178,7 @@ extern "C" int _start(int argc, char **argv) {
         ProcUIShutdown();
     }
 
-    __fini_wut();
-    return 0;
+    return result;
 }
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
@@ -175,13 +207,13 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
 }
 
 void SplashScreen(const char *message, int32_t durationInMs) {
-    int32_t screen_buf0_size = 0;
-
     // Init screen and screen buffers
     OSScreenInit();
-    screen_buf0_size = OSScreenGetBufferSizeEx(SCREEN_TV);
-    OSScreenSetBufferEx(SCREEN_TV, (void *) 0xF4000000);
-    OSScreenSetBufferEx(SCREEN_DRC, (void *) (0xF4000000 + screen_buf0_size));
+    uint32_t screen_buf0_size = OSScreenGetBufferSizeEx(SCREEN_TV);
+    uint32_t screen_buf1_size = OSScreenGetBufferSizeEx(SCREEN_DRC);
+    uint8_t *screenBuffer = (uint8_t *) memalign(0x100, screen_buf0_size + screen_buf1_size);
+    OSScreenSetBufferEx(SCREEN_TV, (void *) screenBuffer);
+    OSScreenSetBufferEx(SCREEN_DRC, (void *) (screenBuffer + screen_buf0_size));
 
     OSScreenEnableEx(SCREEN_TV, 1);
     OSScreenEnableEx(SCREEN_DRC, 1);
@@ -198,4 +230,5 @@ void SplashScreen(const char *message, int32_t durationInMs) {
     OSScreenFlipBuffersEx(SCREEN_DRC);
 
     OSSleepTicks(OSMillisecondsToTicks(durationInMs));
+    free(screenBuffer);
 }
