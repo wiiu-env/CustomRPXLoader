@@ -20,7 +20,6 @@
 #include <coreinit/dynload.h>
 #include <coreinit/title.h>
 #include <sysapp/launch.h>
-#include <nsysnet/socket.h>
 #include <proc_ui/procui.h>
 #include <coreinit/foreground.h>
 #include <coreinit/screen.h>
