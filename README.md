@@ -6,7 +6,7 @@ Place the `payload.elf` in the `sd:/wiiu` folder of your sd card and run a explo
 
 ## Building
 
-For building you just need [wut](https://github.com/devkitPro/wut/) installed, then use the `make` command.
+For building you just need [wut](https://github.com/devkitPro/wut/) and the ppc-portlibs (`(dkp-)pacman -Syu ppc-portlibs`) installed, then use the `make` command.
 
 ## Building using the Dockerfile
 
