@@ -1,5 +1,5 @@
 /****************************************************************************
- * Copyright (C) 2018-2020 Maschell
+ * Copyright (C) 2018-2021 Maschell
  *
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -15,18 +15,10 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <stdio.h>
-#include <string.h>
-
-#include <coreinit/debug.h>
+#include <cstring>
 #include <coreinit/cache.h>
-#include <coreinit/memdefaultheap.h>
-#include <whb/sdcard.h>
-#include <whb/file.h>
 #include <whb/log.h>
 #include "utils/logger.h"
-
-#include "elfio/elfio.hpp"
 #include "ElfUtils.h"
 
 // See https://github.com/decaf-emu/decaf-emu/blob/43366a34e7b55ab9d19b2444aeb0ccd46ac77dea/src/libdecaf/src/cafe/loader/cafe_loader_reloc.cpp#L144
@@ -99,12 +91,12 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
             // }
             auto distance = static_cast<int32_t>(value) - static_cast<int32_t>(target);
             if (distance > 0x1FFFFFC || distance < -0x1FFFFFC) {
-                if (trampolin_data == NULL) {
+                if (trampolin_data == nullptr) {
                     DEBUG_FUNCTION_LINE("***24-bit relative branch cannot hit target. Trampolin isn't provided");
                     DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, distance);
                     return false;
                 } else {
-                    relocation_trampolin_entry_t *freeSlot = NULL;
+                    relocation_trampolin_entry_t *freeSlot = nullptr;
                     for (uint32_t i = 0; i < trampolin_data_length; i++) {
                         // We want to override "old" relocations of imports
                         // Pending relocations have the status RELOC_TRAMP_IMPORT_IN_PROGRESS.
@@ -118,14 +110,14 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                             break;
                         }
                     }
-                    if (freeSlot != NULL) {
+                    if (freeSlot == nullptr) {
                         DEBUG_FUNCTION_LINE("***24-bit relative branch cannot hit target. Trampolin data list is full");
-                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, distance);
+                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, target - (uint32_t) &(freeSlot->trampolin[0]));
                         return false;
                     }
                     if (target - (uint32_t) &(freeSlot->trampolin[0]) > 0x1FFFFFC) {
                         DEBUG_FUNCTION_LINE("**Cannot link 24-bit jump (too far to tramp buffer).");
-                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, distance);
+                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, (target - (uint32_t) &(freeSlot->trampolin[0])));
                         return false;
                     }
 
@@ -140,12 +132,11 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                         freeSlot->status = RELOC_TRAMP_FIXED;
                     } else {
                         // Relocations for the imports may be overridden
-                        freeSlot->status = RELOC_TRAMP_IMPORT_IN_PROGRESS;
+                        freeSlot->status = RELOC_TRAMP_IMPORT_DONE;
                     }
-                    uint32_t symbolValue = (uint32_t) &(freeSlot->trampolin[0]);
+                    auto symbolValue = (uint32_t) &(freeSlot->trampolin[0]);
                     value = symbolValue + addend;
                     distance = static_cast<int32_t>(value) - static_cast<int32_t>(target);
-                    DEBUG_FUNCTION_LINE("Created tramp");
                 }
             }
 
