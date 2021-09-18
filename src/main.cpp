@@ -15,7 +15,7 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <stdint.h>
+#include <cstdint>
 #include <coreinit/cache.h>
 #include <coreinit/dynload.h>
 #include <coreinit/title.h>
@@ -111,7 +111,7 @@ int do_start(int argc, char **argv) {
     // in this case we don't want to do any ProcUi stuff on error, only on success
     bool doProcUI = (argc >= 1 && std::string(argv[0]) != "safe.rpx");
 
-    uint64_t *cfwLaunchedWithPtr = (uint64_t *) 0x00FFFFF8;
+    auto *cfwLaunchedWithPtr = (uint64_t *) 0x00FFFFF8;
     *cfwLaunchedWithPtr = OSGetTitleID();
 
     uint32_t ApplicationMemoryEnd;
@@ -120,7 +120,7 @@ int do_start(int argc, char **argv) {
 
     ApplicationMemoryEnd = (ApplicationMemoryEnd + 0x100) & 0xFFFFFF00;
 
-    module_information_t *gModuleData = (module_information_t *) ApplicationMemoryEnd;
+    auto *gModuleData = (module_information_t *) ApplicationMemoryEnd;
 
     uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
     moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
@@ -182,7 +182,7 @@ int do_start(int argc, char **argv) {
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
     for (auto const &curReloc : relocData) {
-        RelocationData cur = curReloc;
+        const RelocationData& cur = curReloc;
         std::string functionName = cur.getName();
         std::string rplName = cur.getImportRPLInformation().getName();
         int32_t isData = cur.getImportRPLInformation().isData();
@@ -210,7 +210,7 @@ void SplashScreen(const char *message, int32_t durationInMs) {
     OSScreenInit();
     uint32_t screen_buf0_size = OSScreenGetBufferSizeEx(SCREEN_TV);
     uint32_t screen_buf1_size = OSScreenGetBufferSizeEx(SCREEN_DRC);
-    uint8_t *screenBuffer = (uint8_t *) memalign(0x100, screen_buf0_size + screen_buf1_size);
+    auto *screenBuffer = (uint8_t *) memalign(0x100, screen_buf0_size + screen_buf1_size);
     OSScreenSetBufferEx(SCREEN_TV, (void *) screenBuffer);
     OSScreenSetBufferEx(SCREEN_DRC, (void *) (screenBuffer + screen_buf0_size));
 

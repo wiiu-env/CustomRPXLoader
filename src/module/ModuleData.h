@@ -23,11 +23,9 @@
 
 class ModuleData {
 public:
-    ModuleData() {
-    }
+    ModuleData() = default;
 
-    ~ModuleData() {
-    }
+    ~ModuleData() = default;
 
     void setBSSLocation(uint32_t addr, uint32_t size) {
         this->bssAddr = addr;
@@ -47,31 +45,31 @@ public:
         relocation_data_list.push_back(relocation_data);
     }
 
-    const std::vector<RelocationData> &getRelocationDataList() const {
+    [[nodiscard]] const std::vector<RelocationData> &getRelocationDataList() const {
         return relocation_data_list;
     }
 
-    uint32_t getBSSAddr() const {
+    [[nodiscard]] uint32_t getBSSAddr() const {
         return bssAddr;
     }
 
-    uint32_t getBSSSize() const {
+    [[nodiscard]] uint32_t getBSSSize() const {
         return bssSize;
     }
 
-    uint32_t getSBSSAddr() const {
+    [[nodiscard]] uint32_t getSBSSAddr() const {
         return sbssAddr;
     }
 
-    uint32_t getSBSSSize() const {
+    [[nodiscard]] uint32_t getSBSSSize() const {
         return sbssSize;
     }
 
-    uint32_t getEntrypoint() const {
+    [[nodiscard]] uint32_t getEntrypoint() const {
         return entrypoint;
     }
 
-    std::string toString() const;
+    [[nodiscard]] std::string toString() const;
 
 private:
     std::vector<RelocationData> relocation_data_list;

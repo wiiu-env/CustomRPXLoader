@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 
 #ifdef __cplusplus
 extern "C" {
@@ -38,21 +38,21 @@ typedef struct _dyn_linking_function_t {
 } dyn_linking_function_t;
 
 typedef struct _dyn_linking_import_t {
-    char importName[DYN_LINK_IMPORT_NAME_LENGTH + 1];
+    char importName[DYN_LINK_IMPORT_NAME_LENGTH + 1]{};
     bool isData = false;
 } dyn_linking_import_t;
 
 typedef struct _dyn_linking_relocation_entry_t {
-    dyn_linking_function_t *functionEntry = NULL;
-    dyn_linking_import_t *importEntry = NULL;
+    dyn_linking_function_t *functionEntry = nullptr;
+    dyn_linking_import_t *importEntry = nullptr;
     void *destination = NULL;
-    char type;
-    size_t offset;
-    int32_t addend;
+    char type{};
+    size_t offset{};
+    int32_t addend{};
 } dyn_linking_relocation_entry_t;
 
 typedef struct _dyn_linking_relocation_data_t {
-    dyn_linking_function_t functions[DYN_LINK_FUNCTION_LIST_LENGTH];
+    dyn_linking_function_t functions[DYN_LINK_FUNCTION_LIST_LENGTH]{};
     dyn_linking_import_t imports[DYN_LINK_IMPORT_LIST_LENGTH];
 } dyn_linking_relocation_data_t;
 

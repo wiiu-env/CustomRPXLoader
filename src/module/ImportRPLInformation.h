@@ -24,13 +24,12 @@
 class ImportRPLInformation {
 
 public:
-    ImportRPLInformation(std::string name, bool isData = false) {
+    explicit ImportRPLInformation(std::string name, bool isData = false) {
         this->name = name;
         this->_isData = isData;
     }
 
-    ~ImportRPLInformation() {
-    }
+    ~ImportRPLInformation() = default;
 
     static std::optional<ImportRPLInformation> createImportRPLInformation(std::string rawSectionName) {
         std::string fimport = ".fimport_";
@@ -38,7 +37,7 @@ public:
 
         bool data = false;
 
-        std::string rplName = "";
+        std::string rplName;
 
         if (rawSectionName.size() < fimport.size()) {
             return {};
@@ -54,11 +53,11 @@ public:
         return ImportRPLInformation(rplName, data);
     }
 
-    std::string getName() const {
+    [[nodiscard]] std::string getName() const {
         return name;
     }
 
-    bool isData() const {
+    [[nodiscard]] bool isData() const {
         return _isData;
     }
 

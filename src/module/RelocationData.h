@@ -31,34 +31,33 @@ public:
         this->name = name;
     }
 
-    ~RelocationData() {
-    }
+    ~RelocationData() = default;
 
-    char getType() const {
+    [[nodiscard]] char getType() const {
         return type;
     }
 
-    size_t getOffset() const {
+    [[nodiscard]] size_t getOffset() const {
         return offset;
     }
 
-    int32_t getAddend() const {
+    [[nodiscard]] int32_t getAddend() const {
         return addend;
     }
 
-    void *getDestination() const {
+    [[nodiscard]] void *getDestination() const {
         return destination;
     }
 
-    std::string getName() const {
+    [[nodiscard]] std::string getName() const {
         return name;
     }
 
-    ImportRPLInformation getImportRPLInformation() const {
+    [[nodiscard]] ImportRPLInformation getImportRPLInformation() const {
         return rplInfo;
     }
 
-    std::string toString() const;
+    [[nodiscard]] std::string toString() const;
 
 private:
     char type;

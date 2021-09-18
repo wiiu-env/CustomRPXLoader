@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <stdint.h>
-#include <stddef.h>
+#include <cstdint>
+#include <cstddef>
 #include "dynamic_linking_defines.h"
 #include "relocation_defines.h"
 

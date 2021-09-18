@@ -37,7 +37,7 @@ std::optional<ModuleData> ModuleDataFactory::load(const std::string &path, uint3
 
     uint32_t sec_num = reader.sections.size();
 
-    uint8_t **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
+    auto **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
 
     uint32_t sizeOfModule = 0;
     for (uint32_t i = 0; i < sec_num; ++i) {
@@ -73,7 +73,7 @@ std::optional<ModuleData> ModuleDataFactory::load(const std::string &path, uint3
 
         if ((psec->get_type() == SHT_PROGBITS || psec->get_type() == SHT_NOBITS) && (psec->get_flags() & SHF_ALLOC)) {
             uint32_t sectionSize = psec->get_size();
-            uint32_t address = (uint32_t) psec->get_address();
+            auto address = (uint32_t) psec->get_address();
 
             destinations[psec->get_index()] = (uint8_t *) baseOffset;
 
@@ -106,10 +106,10 @@ std::optional<ModuleData> ModuleDataFactory::load(const std::string &path, uint3
             }
 
             //nextAddress = ROUNDUP(destination + sectionSize,0x100);
-            if (psec->get_name().compare(".bss") == 0) {
+            if (psec->get_name() == ".bss") {
                 moduleData.setBSSLocation(destination, sectionSize);
                 DEBUG_FUNCTION_LINE("Saved %s section info. Location: %08X size: %08X", psec->get_name().c_str(), destination, sectionSize);
-            } else if (psec->get_name().compare(".sbss") == 0) {
+            } else if (psec->get_name() == ".sbss") {
                 moduleData.setSBSSLocation(destination, sectionSize);
                 DEBUG_FUNCTION_LINE("Saved %s section info. Location: %08X size: %08X", psec->get_name().c_str(), destination, sectionSize);
             }
@@ -180,7 +180,7 @@ std::vector<RelocationData> ModuleDataFactory::getImportRelocationData(const elf
                     break;
                 }
 
-                uint32_t adjusted_sym_value = (uint32_t) sym_value;
+                auto adjusted_sym_value = (uint32_t) sym_value;
                 if (adjusted_sym_value < 0xC0000000) {
                     continue;
                 }
@@ -223,7 +223,7 @@ bool ModuleDataFactory::linkSection(const elfio &reader, uint32_t section_index,
                     break;
                 }
 
-                uint32_t adjusted_sym_value = (uint32_t) sym_value;
+                auto adjusted_sym_value = (uint32_t) sym_value;
                 if ((adjusted_sym_value >= 0x02000000) && adjusted_sym_value < 0x10000000) {
                     adjusted_sym_value -= 0x02000000;
                     adjusted_sym_value += base_text;

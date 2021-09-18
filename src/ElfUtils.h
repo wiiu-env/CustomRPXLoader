@@ -17,7 +17,7 @@
 
 #pragma once
 
-#include <stdint.h>
+#include <cstdint>
 #include "common/relocation_defines.h"
 
 #ifdef __cplusplus
