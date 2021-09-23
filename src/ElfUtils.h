@@ -59,5 +59,6 @@ extern "C" {
 class ElfUtils {
 
 public:
-    static bool elfLinkOne(char type, size_t offset, int32_t addend, uint32_t destination, uint32_t symbol_addr, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length, RelocationType reloc_type);
+    static bool elfLinkOne(char type, size_t offset, int32_t addend, uint32_t destination, uint32_t symbol_addr, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length,
+                           RelocationType reloc_type);
 };

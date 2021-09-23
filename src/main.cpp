@@ -181,8 +181,8 @@ int do_start(int argc, char **argv) {
 }
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
-    for (auto const &curReloc : relocData) {
-        const RelocationData& cur = curReloc;
+    for (auto const &curReloc: relocData) {
+        const RelocationData &cur = curReloc;
         std::string functionName = cur.getName();
         std::string rplName = cur.getImportRPLInformation().getName();
         int32_t isData = cur.getImportRPLInformation().isData();
