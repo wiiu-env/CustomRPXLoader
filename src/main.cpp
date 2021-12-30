@@ -82,8 +82,6 @@ extern "C" int _start(int argc, char **argv) {
     auto heap = (MEMExpHeap *) mem2_heap_handle;
     MEMExpHeapBlock *memory_start = heap->usedList.tail;
 
-    int res = do_start(argc, argv);
-
     uint32_t entrypoint = do_start(argc, argv);
 
     // free leaked memory
@@ -105,8 +103,7 @@ extern "C" int _start(int argc, char **argv) {
     __fini_wut();
 
     if (entrypoint > 0) {
-        ((int (*)(int, char **)) entrypoint)(argc, argv);
-        _Exit(0);
+        return ((int (*)(int, char **)) entrypoint)(argc, argv);
     }
 
     return -1;
