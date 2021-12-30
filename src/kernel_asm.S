@@ -40,7 +40,7 @@ SaveAndResetDataBATs_And_SRs_hook:
 #define BAT_SET_NOP_ADDR_8          0xFFEE11C4
 #define BAT_SET_NOP_ADDR_9          0xFFEE11C8
 
-#define BAT_SETUP_HOOK_ENTRY        0x00800000
+#define BAT_SETUP_HOOK_ENTRY        0x00900000
 
 
 #define BAT4U_VAL                   0x008000FF
