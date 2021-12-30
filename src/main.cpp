@@ -44,7 +44,7 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
 
 void SplashScreen(const char *message, int32_t durationInMs);
 
-int do_start(int argc, char **argv);
+uint32_t do_start(int argc, char **argv);
 
 bool CheckRunning() {
     switch (ProcUIProcessMessages(true)) {
@@ -68,8 +68,6 @@ bool CheckRunning() {
 extern "C" void __init_wut();
 extern "C" void __fini_wut();
 
-extern "C" void _SYSLaunchMenuWithCheckingAccount(nn::act::SlotNo slot);
-
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
     InitFunctionPointers();
@@ -85,6 +83,8 @@ extern "C" int _start(int argc, char **argv) {
     MEMExpHeapBlock *memory_start = heap->usedList.tail;
 
     int res = do_start(argc, argv);
+
+    uint32_t entrypoint = do_start(argc, argv);
 
     // free leaked memory
     if (memory_start) {
@@ -103,10 +103,16 @@ extern "C" int _start(int argc, char **argv) {
     WHBLogUdpDeinit();
 
     __fini_wut();
-    return res;
+
+    if (entrypoint > 0) {
+        ((int (*)(int, char **)) entrypoint)(argc, argv);
+        _Exit(0);
+    }
+
+    return -1;
 }
 
-int do_start(int argc, char **argv) {
+uint32_t do_start(int argc, char **argv) {
     // If we load from our CustomRPXLoader the argv is set with "safe.rpx"
     // in this case we don't want to do any ProcUi stuff on error, only on success
     bool doProcUI = (argc >= 1 && std::string(argv[0]) != "safe.rpx");
@@ -146,13 +152,12 @@ int do_start(int argc, char **argv) {
         DCFlushRange((void *) 0x00800000, 0x00800000);
         ICInvalidateRange((void *) 0x00800000, 0x00800000);
         DEBUG_FUNCTION_LINE("Calling entrypoint at: %08X", moduleData->getEntrypoint());
-        ((int (*)(int, char **)) moduleData->getEntrypoint())(argc, argv);
-        doProcUI = true;
+        return moduleData->getEntrypoint();
     } else {
         DEBUG_FUNCTION_LINE("Failed to load module, revert main_hook");
         revertMainHook();
         SplashScreen(StringTools::strfmt("Failed to load \"%s\"", filepath.c_str()).c_str(), 3000);
-        result = -1;
+        result = 0;
     }
 
     if (doProcUI) {
