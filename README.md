@@ -2,7 +2,7 @@
 This custom loader for `.rpx` files which can be used with any `payload.elf` loader. (For example [PayloadFromRPX](https://github.com/wiiu-env/PayloadFromRPX) or [JsTypeHax](https://github.com/wiiu-env/JsTypeHax))
 
 ## Usage
-Place the `payload.elf` in the `sd:/wiiu` folder of your sd card and run a exploit which loads `payload.elf`, this will load the `sd:/wiiu/payload.rpx`into memory and execute it. The maximum size of the `payload.rpx` depends on the size of this loader, but should > 7Mib.
+Place the `payload.elf` in the `sd:/wiiu` folder of your sd card and run a exploit which loads `payload.elf`, this will load the `sd:/wiiu/payload.rpx` into memory and execute it. The maximum size of the `payload.rpx` depends on the size of this loader, but should > 7Mib.
 
 ## Building
 
