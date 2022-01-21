@@ -3,7 +3,7 @@ OUTPUT(payload.elf);
 ENTRY(_start);
 
 SECTIONS {
-	. = 0x00900000;
+	. = 0x00808000;
 	.text : {
 		*(.kernel_code*);
 		*(.text*);
@@ -23,4 +23,4 @@ SECTIONS {
 	}
 }
 
-ASSERT((SIZEOF(.text) + SIZEOF(.data)) < 0x100000, "elf is too big");
+ASSERT((SIZEOF(.text) + SIZEOF(.data)) <  (0x00900000 - 0x00808000), "elf is too big");
