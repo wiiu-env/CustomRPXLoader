@@ -47,6 +47,11 @@ CXXFLAGS := -std=c++20 -g -Wall -O2 -ffunction-sections -DESPRESSO -mcpu=750 -me
 ASFLAGS	:= -mregnames
 LDFLAGS	:= -nostartfiles -Wl,--gc-sections,--allow-multiple-definition
 
+ifeq ($(DEBUG),1)
+CXXFLAGS += -DDEBUG -g
+CCFLAGS += -DDEBUG -g
+endif
+
 #---------------------------------------------------------------------------------
 Q := @
 MAKEFLAGS += --no-print-directory

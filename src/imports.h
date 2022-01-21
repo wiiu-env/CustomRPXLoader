@@ -1,6 +1,7 @@
 /* coreinit */
 IMPORT_BEGIN(coreinit);
 
+IMPORT(OSReport);
 IMPORT(OSScreenInit);
 IMPORT(OSScreenGetBufferSizeEx);
 IMPORT(OSScreenSetBufferEx);
