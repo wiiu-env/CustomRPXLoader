@@ -76,6 +76,8 @@ bool module_log = false;
 bool udp_log = false;
 bool cafe_log = false;
 #endif // DEBUG
+
+extern "C" int _start(int argc, char **argv)  __attribute__ ((section (".start_code")));
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
     InitFunctionPointers();
