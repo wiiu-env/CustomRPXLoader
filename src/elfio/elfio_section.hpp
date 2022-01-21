@@ -161,13 +161,7 @@ class section_impl : public section
     {
         if ( get_type() != SHT_NOBITS ) {
             delete [] data;
-            try {
-                data = new char[size];
-            } catch (const std::bad_alloc&) {
-                data      = 0;
-                data_size = 0;
-                size      = 0;
-            }
+            data = new char[size];
             if ( 0 != data && 0 != raw_data ) {
                 data_size = size;
                 std::copy( raw_data, raw_data + size, data );
@@ -195,12 +189,8 @@ class section_impl : public section
             else {
                 data_size = 2*( data_size + size);
                 char* new_data;
-                try {
-                    new_data = new char[data_size];
-                } catch (const std::bad_alloc&) {
-                    new_data = 0;
-                    size     = 0;
-                }
+                new_data = new char[data_size];
+
                 if ( 0 != new_data ) {
                     std::copy( data, data + get_size(), new_data );
                     std::copy( raw_data, raw_data + size, new_data + get_size() );
@@ -247,12 +237,8 @@ class section_impl : public section
 
         Elf_Xword size = get_size();
         if ( 0 == data && SHT_NULL != get_type() && SHT_NOBITS != get_type() && size < get_stream_size()) {
-            try {
-                data = new char[size + 1];
-            } catch (const std::bad_alloc&) {
-                data      = 0;
-                data_size = 0;
-            }
+
+            data = new char[size + 1];
 
             if ( ( 0 != size ) && ( 0 != data ) ) {
                 stream.seekg( (*convertor)( header.sh_offset ) );
@@ -288,7 +274,7 @@ class section_impl : public section
 
                     inflateEnd(&s);
 
-                    free(data);
+                    delete [] data;
                     data = uncompressedData;
                     data_size = uncompressed_size;
                     set_size(uncompressed_size);
