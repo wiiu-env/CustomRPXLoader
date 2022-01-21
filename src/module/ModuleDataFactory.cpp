@@ -38,7 +38,7 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
 
     uint32_t sec_num = reader.sections.size();
 
-    auto **destinations = (uint8_t **) malloc(sizeof(uint8_t * ) * sec_num);
+    auto **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
 
     uint32_t sizeOfModule = 0;
     for (uint32_t i = 0; i < sec_num; ++i) {
@@ -116,7 +116,9 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
             }
             totalSize += sectionSize;
 
+            DEBUG_FUNCTION_LINE("DCFlushRange %08X - %08X", destination, destination + sectionSize);
             DCFlushRange((void *) destination, sectionSize);
+            DEBUG_FUNCTION_LINE("ICInvalidateRange %08X - %08X", destination, destination + sectionSize);
             ICInvalidateRange((void *) destination, sectionSize);
         }
     }
@@ -138,7 +140,9 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
         moduleData.addRelocationData(reloc);
     }
 
+    DEBUG_FUNCTION_LINE("DCFlushRange %08X - %08X", baseOffset, baseOffset + totalSize);
     DCFlushRange((void *) baseOffset, totalSize);
+    DEBUG_FUNCTION_LINE("ICInvalidateRange %08X - %08X", baseOffset, baseOffset + totalSize);
     ICInvalidateRange((void *) baseOffset, totalSize);
 
     free(destinations);

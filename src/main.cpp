@@ -114,7 +114,8 @@ extern "C" int _start(int argc, char **argv) {
             if (memory_end == memory_start) {
                 break;
             }
-            free(&memory_end[1]);
+            auto mem_ptr = &memory_end[1]; // &memory_end + sizeof(MEMExpHeapBlock);
+            free(mem_ptr);
             leak_count++;
         }
         OSReport("Freed %d leaked memory blocks\n", leak_count);
@@ -208,7 +209,7 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
         std::string functionName = cur.getName();
         std::string rplName = cur.getImportRPLInformation().getName();
         int32_t isData = cur.getImportRPLInformation().isData();
-        OSDynLoad_Module rplHandle = 0;
+        OSDynLoad_Module rplHandle = nullptr;
         OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
 
         uint32_t functionAddress = 0;
@@ -245,7 +246,6 @@ void SplashScreen(const char *message, int32_t durationInMs) {
 
     OSScreenPutFontEx(SCREEN_TV, 0, 0, message);
     OSScreenPutFontEx(SCREEN_DRC, 0, 0, message);
-
 
     OSScreenFlipBuffersEx(SCREEN_TV);
     OSScreenFlipBuffersEx(SCREEN_DRC);
