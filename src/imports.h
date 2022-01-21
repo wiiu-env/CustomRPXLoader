@@ -167,61 +167,7 @@ IMPORT(socket_lib_finish);
 IMPORT_END();
 
 /* gx2 */
-IMPORT_BEGIN(gx2);
 
-IMPORT(GX2Invalidate);
-IMPORT(GX2Init);
-IMPORT(GX2GetSystemTVScanMode);
-IMPORT(GX2CalcTVSize);
-IMPORT(GX2SetTVBuffer);
-IMPORT(GX2CalcDRCSize);
-IMPORT(GX2SetDRCBuffer);
-IMPORT(GX2CalcSurfaceSizeAndAlignment);
-IMPORT(GX2InitColorBufferRegs);
-IMPORT(GX2SetupContextStateEx);
-IMPORT(GX2SetContextState);
-IMPORT(GX2SetColorBuffer);
-IMPORT(GX2SetViewport);
-IMPORT(GX2SetScissor);
-IMPORT(GX2SetDepthOnlyControl);
-IMPORT(GX2SetColorControl);
-IMPORT(GX2SetBlendControl);
-IMPORT(GX2SetBlendConstantColor);
-IMPORT(GX2SetCullOnlyControl);
-IMPORT(GX2CalcFetchShaderSizeEx);
-IMPORT(GX2InitFetchShaderEx);
-IMPORT(GX2SetFetchShader);
-IMPORT(GX2SetVertexShader);
-IMPORT(GX2SetPixelShader);
-IMPORT(GX2SetGeometryShader);
-IMPORT(GX2SetGeometryUniformBlock);
-IMPORT(GX2SetVertexUniformBlock);
-IMPORT(GX2SetPixelUniformBlock);
-IMPORT(GX2CalcGeometryShaderInputRingBufferSize);
-IMPORT(GX2CalcGeometryShaderOutputRingBufferSize);
-IMPORT(GX2SetGeometryShaderInputRingBuffer);
-IMPORT(GX2SetGeometryShaderOutputRingBuffer);
-IMPORT(GX2SetShaderModeEx);
-IMPORT(GX2SetAttribBuffer);
-IMPORT(GX2InitTextureRegs);
-IMPORT(GX2InitSampler);
-IMPORT(GX2SetPixelTexture);
-IMPORT(GX2SetPixelSampler);
-IMPORT(GX2ClearColor);
-IMPORT(GX2CopyColorBufferToScanBuffer);
-IMPORT(GX2SwapScanBuffers);
-IMPORT(GX2Flush);
-IMPORT(GX2WaitForVsync);
-IMPORT(GX2SetTVEnable);
-IMPORT(GX2SetDRCEnable);
-IMPORT(GX2SetSwapInterval);
-IMPORT(GX2DrawDone);
-IMPORT(GX2Shutdown);
-IMPORT(GX2DrawEx);
-IMPORT(GX2WaitForFlip);
-IMPORT(GX2GetSwapStatus);
-
-IMPORT_END();
 
 /* nn_ac */
 IMPORT_BEGIN(nn_ac);
@@ -247,24 +193,6 @@ IMPORT(ProcUIProcessMessages);
 
 IMPORT_END();
 
-/* sndcore2 */
-IMPORT_BEGIN(sndcore2);
-
-IMPORT(AXInitWithParams);
-IMPORT(AXQuit);
-IMPORT(AXRegisterFrameCallback);
-IMPORT(AXAcquireMultiVoice);
-IMPORT(AXSetMultiVoiceDeviceMix);
-IMPORT(AXSetMultiVoiceOffsets);
-IMPORT(AXSetMultiVoiceCurrentOffset);
-IMPORT(AXSetMultiVoiceState);
-IMPORT(AXSetMultiVoiceVe);
-IMPORT(AXSetMultiVoiceSrcType);
-IMPORT(AXSetMultiVoiceSrcRatio);
-IMPORT(AXIsMultiVoiceRunning);
-IMPORT(AXFreeMultiVoice);
-
-IMPORT_END();
 
 /* sysapp */
 IMPORT_BEGIN(sysapp);
