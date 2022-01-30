@@ -30,10 +30,6 @@
 #include "module/ModuleDataFactory.h"
 #include "common/module_defines.h"
 
-#include <whb/log.h>
-#include <whb/log_udp.h>
-#include <whb/log_cafe.h>
-#include <whb/log_module.h>
 #include <utils/StringTools.h>
 
 #include "kernel.h"
@@ -71,12 +67,6 @@ bool CheckRunning() {
 extern "C" void __init_wut();
 extern "C" void __fini_wut();
 
-#ifdef DEBUG
-bool module_log = false;
-bool udp_log = false;
-bool cafe_log = false;
-#endif // DEBUG
-
 extern "C" int _start(int argc, char **argv)  __attribute__ ((section (".start_code")));
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
@@ -90,21 +80,12 @@ extern "C" int _start(int argc, char **argv) {
     auto heap = (MEMExpHeap *) mem2_heap_handle;
     MEMExpHeapBlock *memory_start = heap->usedList.tail;
 
-#ifdef DEBUG
-    if (!(module_log = WHBLogModuleInit())) {
-        cafe_log = WHBLogCafeInit();
-        udp_log = WHBLogUdpInit();
-    }
-#endif // DEBUG
+    initLogging();
     DEBUG_FUNCTION_LINE("Hello from CustomRPXloader");
 
     uint32_t entrypoint = do_start(argc, argv);
 
-#ifdef DEBUG
-    if (module_log) { WHBLogModuleDeinit(); }
-    if (udp_log) { WHBLogUdpDeinit(); }
-    if (cafe_log) { WHBLogCafeDeinit(); }
-#endif // DEBUG
+    deinitLogging();
 
     // free leaked memory
     if (memory_start) {

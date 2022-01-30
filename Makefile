@@ -49,7 +49,7 @@ LDFLAGS	:= -nostartfiles -Wl,--gc-sections,--allow-multiple-definition
 
 ifeq ($(DEBUG),1)
 CXXFLAGS += -DDEBUG -g
-CCFLAGS += -DDEBUG -g
+CFLAGS += -DDEBUG -g
 endif
 
 #---------------------------------------------------------------------------------
