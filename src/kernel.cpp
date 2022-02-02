@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+#include <coreinit/cache.h>
+#include <coreinit/memorymap.h>
 #include <cstdint>
 #include <cstdio>
 #include <cstring>
-#include <coreinit/cache.h>
-#include <coreinit/memorymap.h>
 
 #include "kernel.h"
 
@@ -29,7 +29,7 @@ extern "C" void KernelPatches(void);
 extern "C" void KernelPatchesFinal(void);
 extern "C" void SaveAndResetDataBATs_And_SRs_hook(void);
 
-void __attribute__ ((noinline)) kern_write(void *addr, uint32_t value);
+void __attribute__((noinline)) kern_write(void *addr, uint32_t value);
 
 extern "C" void SC_0x25_KernelCopyData(unsigned int addr, unsigned int src, unsigned int len);
 
@@ -80,27 +80,25 @@ void doKernelSetup2() {
     kern_write((void *) (KERN_SYSCALL_TBL_3 + (0x25 * 4)), (unsigned int) SCKernelCopyData);
     kern_write((void *) (KERN_SYSCALL_TBL_4 + (0x25 * 4)), (unsigned int) SCKernelCopyData);
     kern_write((void *) (KERN_SYSCALL_TBL_5 + (0x25 * 4)), (unsigned int) SCKernelCopyData);
-
 }
 
 /* Write a 32-bit word with kernel permissions */
-void __attribute__ ((noinline)) kern_write(void *addr, uint32_t value) {
-    asm volatile (
-    "li 3,1\n"
-    "li 4,0\n"
-    "mr 5,%1\n"
-    "li 6,0\n"
-    "li 7,0\n"
-    "lis 8,1\n"
-    "mr 9,%0\n"
-    "mr %1,1\n"
-    "li 0,0x3500\n"
-    "sc\n"
-    "nop\n"
-    "mr 1,%1\n"
-    :
-    :    "r"(addr), "r"(value)
-    :    "memory", "ctr", "lr", "0", "3", "4", "5", "6", "7", "8", "9", "10",
-    "11", "12"
-    );
+void __attribute__((noinline)) kern_write(void *addr, uint32_t value) {
+    asm volatile(
+            "li 3,1\n"
+            "li 4,0\n"
+            "mr 5,%1\n"
+            "li 6,0\n"
+            "li 7,0\n"
+            "lis 8,1\n"
+            "mr 9,%0\n"
+            "mr %1,1\n"
+            "li 0,0x3500\n"
+            "sc\n"
+            "nop\n"
+            "mr 1,%1\n"
+            :
+            : "r"(addr), "r"(value)
+            : "memory", "ctr", "lr", "0", "3", "4", "5", "6", "7", "8", "9", "10",
+              "11", "12");
 }

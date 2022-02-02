@@ -15,11 +15,11 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <cstring>
-#include <coreinit/cache.h>
-#include <whb/log.h>
-#include "utils/logger.h"
 #include "ElfUtils.h"
+#include "utils/logger.h"
+#include <coreinit/cache.h>
+#include <cstring>
+#include <whb/log.h>
 
 // See https://github.com/decaf-emu/decaf-emu/blob/43366a34e7b55ab9d19b2444aeb0ccd46ac77dea/src/libdecaf/src/cafe/loader/cafe_loader_reloc.cpp#L144
 bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t destination, uint32_t symbol_addr, relocation_trampolin_entry_t *trampolin_data, uint32_t trampolin_data_length,
@@ -113,19 +113,19 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                     }
                     if (freeSlot == nullptr) {
                         DEBUG_FUNCTION_LINE("***24-bit relative branch cannot hit target. Trampolin data list is full");
-                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, target - (uint32_t) &(freeSlot->trampolin[0]));
+                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, target - (uint32_t) & (freeSlot->trampolin[0]));
                         return false;
                     }
-                    if (target - (uint32_t) &(freeSlot->trampolin[0]) > 0x1FFFFFC) {
+                    if (target - (uint32_t) & (freeSlot->trampolin[0]) > 0x1FFFFFC) {
                         DEBUG_FUNCTION_LINE("**Cannot link 24-bit jump (too far to tramp buffer).");
-                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, (target - (uint32_t) &(freeSlot->trampolin[0])));
+                        DEBUG_FUNCTION_LINE("***value %08X - target %08X = distance %08X", value, target, (target - (uint32_t) & (freeSlot->trampolin[0])));
                         return false;
                     }
 
-                    freeSlot->trampolin[0] = 0x3D600000 | ((((uint32_t) value) >> 16) & 0x0000FFFF); // lis r11, real_addr@h
-                    freeSlot->trampolin[1] = 0x616B0000 | (((uint32_t) value) & 0x0000ffff); // ori r11, r11, real_addr@l
-                    freeSlot->trampolin[2] = 0x7D6903A6; // mtctr   r11
-                    freeSlot->trampolin[3] = 0x4E800420; // bctr
+                    freeSlot->trampolin[0] = 0x3D600000 | ((((uint32_t) value) >> 16) & 0x0000FFFF);// lis r11, real_addr@h
+                    freeSlot->trampolin[1] = 0x616B0000 | (((uint32_t) value) & 0x0000ffff);        // ori r11, r11, real_addr@l
+                    freeSlot->trampolin[2] = 0x7D6903A6;                                            // mtctr   r11
+                    freeSlot->trampolin[3] = 0x4E800420;                                            // bctr
                     DCFlushRange((void *) freeSlot->trampolin, sizeof(freeSlot->trampolin));
                     ICInvalidateRange((unsigned char *) freeSlot->trampolin, sizeof(freeSlot->trampolin));
 
@@ -135,7 +135,7 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                         // Relocations for the imports may be overridden
                         freeSlot->status = RELOC_TRAMP_IMPORT_DONE;
                     }
-                    auto symbolValue = (uint32_t) &(freeSlot->trampolin[0]);
+                    auto symbolValue = (uint32_t) & (freeSlot->trampolin[0]);
                     value = symbolValue + addend;
                     distance = static_cast<int32_t>(value) - static_cast<int32_t>(target);
                 }
