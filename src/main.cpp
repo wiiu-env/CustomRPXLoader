@@ -15,29 +15,29 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
-#include <cstdint>
 #include <coreinit/cache.h>
 #include <coreinit/dynload.h>
-#include <coreinit/title.h>
-#include <sysapp/launch.h>
-#include <proc_ui/procui.h>
 #include <coreinit/foreground.h>
 #include <coreinit/screen.h>
+#include <coreinit/title.h>
+#include <cstdint>
 #include <nn/act/client_cpp.h>
+#include <proc_ui/procui.h>
+#include <sysapp/launch.h>
 
 #include "ElfUtils.h"
+#include "common/module_defines.h"
 #include "module/ModuleData.h"
 #include "module/ModuleDataFactory.h"
-#include "common/module_defines.h"
 
 #include <utils/StringTools.h>
 
-#include "kernel.h"
 #include "dynamic.h"
+#include "kernel.h"
 #include "utils/logger.h"
-#include <malloc.h>
-#include <coreinit/memexpheap.h>
 #include <coreinit/debug.h>
+#include <coreinit/memexpheap.h>
+#include <malloc.h>
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
 
@@ -67,7 +67,7 @@ bool CheckRunning() {
 extern "C" void __init_wut();
 extern "C" void __fini_wut();
 
-extern "C" int _start(int argc, char **argv)  __attribute__ ((section (".start_code")));
+extern "C" int _start(int argc, char **argv) __attribute__((section(".start_code")));
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
     InitFunctionPointers();
@@ -95,7 +95,7 @@ extern "C" int _start(int argc, char **argv) {
             if (memory_end == memory_start) {
                 break;
             }
-            auto mem_ptr = &memory_end[1]; // &memory_end + sizeof(MEMExpHeapBlock);
+            auto mem_ptr = &memory_end[1];// &memory_end + sizeof(MEMExpHeapBlock);
             free(mem_ptr);
             leak_count++;
         }
@@ -105,7 +105,9 @@ extern "C" int _start(int argc, char **argv) {
     __fini_wut();
 
     if (entrypoint > 0) {
-        return ((int (*)(int, char **)) entrypoint)(argc, argv);
+        // clang-format off
+        return ((int(*)(int, char **)) entrypoint)(argc, argv);
+        // clang-format on
     }
 
     return -1;
@@ -121,7 +123,8 @@ uint32_t do_start(int argc, char **argv) {
 
     uint32_t ApplicationMemoryEnd;
 
-    asm volatile("lis %0, __CODE_END@h; ori %0, %0, __CODE_END@l" : "=r" (ApplicationMemoryEnd));
+    asm volatile("lis %0, __CODE_END@h; ori %0, %0, __CODE_END@l"
+                 : "=r"(ApplicationMemoryEnd));
 
     ApplicationMemoryEnd = (ApplicationMemoryEnd + 0x100) & 0xFFFFFF00;
 
@@ -185,7 +188,7 @@ uint32_t do_start(int argc, char **argv) {
 }
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
-    for (auto const &curReloc: relocData) {
+    for (auto const &curReloc : relocData) {
         const RelocationData &cur = curReloc;
         std::string functionName = cur.getName();
         std::string rplName = cur.getImportRPLInformation().getName();

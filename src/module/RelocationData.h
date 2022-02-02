@@ -17,8 +17,8 @@
 
 #pragma once
 
-#include <string>
 #include "ImportRPLInformation.h"
+#include <string>
 
 class RelocationData {
 

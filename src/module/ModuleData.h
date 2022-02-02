@@ -17,9 +17,9 @@
 
 #pragma once
 
+#include "RelocationData.h"
 #include <string>
 #include <vector>
-#include "RelocationData.h"
 
 class ModuleData {
 public:

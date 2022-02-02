@@ -17,13 +17,15 @@
 
 #pragma once
 
-#include <cstdint>
 #include "common/relocation_defines.h"
+#include <cstddef>
+#include <cstdint>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
 
+// clang-format off
 #define R_PPC_NONE              0
 #define R_PPC_ADDR32            1
 #define R_PPC_ADDR16_LO         4
@@ -51,6 +53,7 @@ extern "C" {
 #define PPC_LOW24               0x03FFFFFC
 #define PPC_LOW14               0x0020FFFC
 #define PPC_HALF16              0xFFFF
+// clang-format on
 
 #ifdef __cplusplus
 }

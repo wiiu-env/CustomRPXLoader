@@ -1,3 +1,4 @@
+[![CI-Release](https://github.com/wiiu-env/CustomRPXLoader/actions/workflows/ci.yml/badge.svg)](https://github.com/wiiu-env/CustomRPXLoader/actions/workflows/ci.yml)
 # CustomRPXLoader
 This custom loader for `.rpx` files which can be used with any `payload.elf` loader. (For example [PayloadFromRPX](https://github.com/wiiu-env/PayloadFromRPX) or [JsTypeHax](https://github.com/wiiu-env/JsTypeHax))
 
@@ -22,6 +23,10 @@ docker run -it --rm -v ${PWD}:/project customrpxloader-builder make
 # make clean
 docker run -it --rm -v ${PWD}:/project customrpxloader-builder make clean
 ```
+
+## Format the code via docker
+
+`docker run --rm -v ${PWD}:/src wiiuenv/clang-format:13.0.0-2 -r ./src -i`
 
 ## Credits
 - Maschell
