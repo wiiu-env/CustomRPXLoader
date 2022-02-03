@@ -74,7 +74,7 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
 
         if ((psec->get_type() == SHT_PROGBITS || psec->get_type() == SHT_NOBITS) && (psec->get_flags() & SHF_ALLOC)) {
             uint32_t sectionSize = psec->get_size();
-            auto address = (uint32_t) psec->get_address();
+            auto address         = (uint32_t) psec->get_address();
 
             destinations[psec->get_index()] = (uint8_t *) baseOffset;
 

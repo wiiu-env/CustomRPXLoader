@@ -28,7 +28,7 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
         return true;
     }
     auto target = destination + offset;
-    auto value = symbol_addr + addend;
+    auto value  = symbol_addr + addend;
 
 
     auto relValue = value - static_cast<uint32_t>(target);
@@ -122,10 +122,10 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                         return false;
                     }
 
-                    freeSlot->trampolin[0] = 0x3D600000 | ((((uint32_t) value) >> 16) & 0x0000FFFF);// lis r11, real_addr@h
-                    freeSlot->trampolin[1] = 0x616B0000 | (((uint32_t) value) & 0x0000ffff);        // ori r11, r11, real_addr@l
-                    freeSlot->trampolin[2] = 0x7D6903A6;                                            // mtctr   r11
-                    freeSlot->trampolin[3] = 0x4E800420;                                            // bctr
+                    freeSlot->trampolin[0] = 0x3D600000 | ((((uint32_t) value) >> 16) & 0x0000FFFF); // lis r11, real_addr@h
+                    freeSlot->trampolin[1] = 0x616B0000 | (((uint32_t) value) & 0x0000ffff);         // ori r11, r11, real_addr@l
+                    freeSlot->trampolin[2] = 0x7D6903A6;                                             // mtctr   r11
+                    freeSlot->trampolin[3] = 0x4E800420;                                             // bctr
                     DCFlushRange((void *) freeSlot->trampolin, sizeof(freeSlot->trampolin));
                     ICInvalidateRange((unsigned char *) freeSlot->trampolin, sizeof(freeSlot->trampolin));
 
@@ -136,8 +136,8 @@ bool ElfUtils::elfLinkOne(char type, size_t offset, int32_t addend, uint32_t des
                         freeSlot->status = RELOC_TRAMP_IMPORT_DONE;
                     }
                     auto symbolValue = (uint32_t) & (freeSlot->trampolin[0]);
-                    value = symbolValue + addend;
-                    distance = static_cast<int32_t>(value) - static_cast<int32_t>(target);
+                    value            = symbolValue + addend;
+                    distance         = static_cast<int32_t>(value) - static_cast<int32_t>(target);
                 }
             }
 
