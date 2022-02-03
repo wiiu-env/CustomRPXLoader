@@ -77,8 +77,8 @@ extern "C" int _start(int argc, char **argv) {
 
     // Save last entry on mem2 heap to detect leaked memory
     MEMHeapHandle mem2_heap_handle = MEMGetBaseHeapHandle(MEM_BASE_HEAP_MEM2);
-    auto heap = (MEMExpHeap *) mem2_heap_handle;
-    MEMExpHeapBlock *memory_start = heap->usedList.tail;
+    auto heap                      = (MEMExpHeap *) mem2_heap_handle;
+    MEMExpHeapBlock *memory_start  = heap->usedList.tail;
 
     initLogging();
     DEBUG_FUNCTION_LINE("Hello from CustomRPXloader");
@@ -95,7 +95,7 @@ extern "C" int _start(int argc, char **argv) {
             if (memory_end == memory_start) {
                 break;
             }
-            auto mem_ptr = &memory_end[1];// &memory_end + sizeof(MEMExpHeapBlock);
+            auto mem_ptr = &memory_end[1]; // &memory_end + sizeof(MEMExpHeapBlock);
             free(mem_ptr);
             leak_count++;
         }
@@ -119,7 +119,7 @@ uint32_t do_start(int argc, char **argv) {
     bool doProcUI = (argc >= 1 && std::string(argv[0]) != "safe.rpx");
 
     auto *cfwLaunchedWithPtr = (uint64_t *) 0x00FFFFF8;
-    *cfwLaunchedWithPtr = OSGetTitleID();
+    *cfwLaunchedWithPtr      = OSGetTitleID();
 
     uint32_t ApplicationMemoryEnd;
 
@@ -131,7 +131,7 @@ uint32_t do_start(int argc, char **argv) {
     auto *gModuleData = (module_information_t *) ApplicationMemoryEnd;
 
     uint32_t moduleDataStartAddress = ((uint32_t) gModuleData + sizeof(module_information_t));
-    moduleDataStartAddress = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
+    moduleDataStartAddress          = (moduleDataStartAddress + 0x10000) & 0xFFFF0000;
 
     std::string filepath("fs:/vol/external01/wiiu/payload.rpx");
     int result = 0;
@@ -164,7 +164,7 @@ uint32_t do_start(int argc, char **argv) {
 
     if (doProcUI) {
         nn::act::Initialize();
-        nn::act::SlotNo slot = nn::act::GetSlotNo();
+        nn::act::SlotNo slot        = nn::act::GetSlotNo();
         nn::act::SlotNo defaultSlot = nn::act::GetDefaultAccount();
         nn::act::Finalize();
 
@@ -189,10 +189,10 @@ uint32_t do_start(int argc, char **argv) {
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
     for (auto const &curReloc : relocData) {
-        const RelocationData &cur = curReloc;
-        std::string functionName = cur.getName();
-        std::string rplName = cur.getImportRPLInformation().getName();
-        int32_t isData = cur.getImportRPLInformation().isData();
+        const RelocationData &cur  = curReloc;
+        std::string functionName   = cur.getName();
+        std::string rplName        = cur.getImportRPLInformation().getName();
+        int32_t isData             = cur.getImportRPLInformation().isData();
         OSDynLoad_Module rplHandle = nullptr;
         OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
 
@@ -217,7 +217,7 @@ void SplashScreen(const char *message, int32_t durationInMs) {
     OSScreenInit();
     uint32_t screen_buf0_size = OSScreenGetBufferSizeEx(SCREEN_TV);
     uint32_t screen_buf1_size = OSScreenGetBufferSizeEx(SCREEN_DRC);
-    auto *screenBuffer = (uint8_t *) memalign(0x100, screen_buf0_size + screen_buf1_size);
+    auto *screenBuffer        = (uint8_t *) memalign(0x100, screen_buf0_size + screen_buf1_size);
     OSScreenSetBufferEx(SCREEN_TV, (void *) screenBuffer);
     OSScreenSetBufferEx(SCREEN_DRC, (void *) (screenBuffer + screen_buf0_size));
 

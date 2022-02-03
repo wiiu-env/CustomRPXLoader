@@ -24,11 +24,11 @@ class RelocationData {
 
 public:
     RelocationData(char type, size_t offset, int32_t addend, void *destination, const std::string &name, const ImportRPLInformation &rplInfo) : rplInfo(rplInfo) {
-        this->type = type;
-        this->offset = offset;
-        this->addend = addend;
+        this->type        = type;
+        this->offset      = offset;
+        this->addend      = addend;
         this->destination = destination;
-        this->name = name;
+        this->name        = name;
     }
 
     ~RelocationData() = default;

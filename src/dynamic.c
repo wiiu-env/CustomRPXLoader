@@ -27,7 +27,7 @@ EXPORT_VAR(uint32_t *, MEMFreeToDefaultHeap);
 
 void InitFunctionPointers(void) {
     OSDynLoad_Module handle;
-    addr_OSDynLoad_Acquire = (void *) 0x0102A3B4;
+    addr_OSDynLoad_Acquire    = (void *) 0x0102A3B4;
     addr_OSDynLoad_FindExport = (void *) 0x0102B828;
 
     OSDynLoad_Acquire("coreinit.rpl", &handle);

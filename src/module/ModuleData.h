@@ -74,9 +74,9 @@ public:
 private:
     std::vector<RelocationData> relocation_data_list;
 
-    uint32_t bssAddr = 0;
-    uint32_t bssSize = 0;
-    uint32_t sbssAddr = 0;
-    uint32_t sbssSize = 0;
+    uint32_t bssAddr    = 0;
+    uint32_t bssSize    = 0;
+    uint32_t sbssAddr   = 0;
+    uint32_t sbssSize   = 0;
     uint32_t entrypoint = 0;
 };
