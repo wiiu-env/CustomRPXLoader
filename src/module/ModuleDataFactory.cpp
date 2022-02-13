@@ -17,7 +17,7 @@
 
 #include "ModuleDataFactory.h"
 #include "../ElfUtils.h"
-#include "elfio/elfio.hpp"
+#include "../utils/FileUtils.h"
 #include <coreinit/cache.h>
 #include <map>
 #include <string>
@@ -30,15 +30,28 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
     elfio reader;
     ModuleData moduleData;
 
+    uint8_t *buffer = nullptr;
+    uint32_t fsize  = 0;
+    if (LoadFileToMem(path.c_str(), &buffer, &fsize) < 0) {
+        DEBUG_FUNCTION_LINE("Failed to load file");
+        return {};
+    }
+
     // Load ELF data
-    if (!reader.load(path)) {
+    if (!reader.load(reinterpret_cast<char *>(buffer), fsize)) {
         DEBUG_FUNCTION_LINE("Can't find or process %s", path.c_str());
+        free(buffer);
         return {};
     }
 
     uint32_t sec_num = reader.sections.size();
 
     auto **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
+
+    if (!destinations) {
+        DEBUG_FUNCTION_LINE("Failed to alloc memory for destinations");
+        free(buffer);
+    }
 
     uint32_t sizeOfModule = 0;
     for (uint32_t i = 0; i < sec_num; ++i) {
@@ -54,6 +67,8 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
 
     if (sizeOfModule > maximum_size) {
         DEBUG_FUNCTION_LINE("Module is too big.");
+        free(buffer);
+        free(destinations);
         return {};
     }
 
@@ -93,6 +108,7 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
             } else {
                 DEBUG_FUNCTION_LINE("Unhandled case");
                 free(destinations);
+                free(buffer);
                 return {};
             }
 
@@ -130,6 +146,7 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
             if (!linkSection(reader, psec->get_index(), (uint32_t) destinations[psec->get_index()], offset_text, offset_data, trampolin_data, trampolin_data_length)) {
                 DEBUG_FUNCTION_LINE("elfLink failed");
                 free(destinations);
+                free(buffer);
                 return {};
             }
         }
@@ -146,13 +163,13 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
     ICInvalidateRange((void *) baseOffset, totalSize);
 
     free(destinations);
+    free(buffer);
 
     moduleData.setEntrypoint(entrypoint);
     DEBUG_FUNCTION_LINE("Saved entrypoint as %08X", entrypoint);
 
     return moduleData;
 }
-
 
 std::vector<RelocationData> ModuleDataFactory::getImportRelocationData(const elfio &reader, uint8_t **destinations) {
     std::vector<RelocationData> result;
