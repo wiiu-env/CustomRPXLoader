@@ -23,7 +23,7 @@ int32_t LoadFileToMem(const char *filepath, uint8_t **inbuffer, uint32_t *size) 
     uint32_t filesize = lseek(iFd, 0, SEEK_END);
     lseek(iFd, 0, SEEK_SET);
 
-    auto *buffer = (uint8_t *) malloc(ROUNDUP(filesize, 0x40));
+    auto *buffer = (uint8_t *) memalign(0x40, ROUNDUP(filesize, 0x40));
     if (buffer == nullptr) {
         close(iFd);
         return -2;
