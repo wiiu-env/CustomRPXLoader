@@ -83,7 +83,7 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
 
     for (uint32_t i = 0; i < sec_num; ++i) {
         section *psec = reader.sections[i];
-        if (psec->get_type() == 0x80000002) {
+        if (psec->get_type() == 0x80000002 || psec->get_name() == ".wut_load_bounds") {
             continue;
         }
 
@@ -103,8 +103,10 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
                 destination -= 0x10000000;
                 destinations[psec->get_index()] -= 0x10000000;
             } else if (address >= 0xC0000000) {
-                destination -= 0xC0000000;
-                destinations[psec->get_index()] -= 0xC0000000;
+                DEBUG_FUNCTION_LINE("Loading section from 0xC0000000 is NOT supported");
+                free(destinations);
+                free(buffer);
+                return {};
             } else {
                 DEBUG_FUNCTION_LINE("Unhandled case");
                 free(destinations);
