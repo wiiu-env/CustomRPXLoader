@@ -59,6 +59,7 @@ IMPORT(OSCompareAndSwapAtomic);
 IMPORT(OSGetThreadSpecific);
 IMPORT(OSSetThreadSpecific);
 IMPORT(FSTimeToCalendarTime);
+IMPORT(OSIsDebuggerInitialized);
 
 IMPORT(exit);
 IMPORT(_Exit);
@@ -94,6 +95,7 @@ IMPORT(FSGetFreeSpaceSize);
 IMPORT(FSGetStat);
 IMPORT(FSRemove);
 IMPORT(FSOpenFile);
+IMPORT(FSOpenFileEx);
 IMPORT(FSCloseFile);
 IMPORT(FSOpenDir);
 IMPORT(FSMakeDir);
