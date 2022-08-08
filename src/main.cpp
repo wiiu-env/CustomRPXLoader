@@ -64,19 +64,16 @@ bool CheckRunning() {
     return true;
 }
 
-extern "C" void __init_wut();
-extern "C" void __fini_wut();
-extern "C" void __init_wut_malloc();
+extern "C" void init_wut();
+extern "C" void fini_wut();
 
 extern "C" int _start(int argc, char **argv) __attribute__((section(".start_code")));
 extern "C" int _start(int argc, char **argv) {
-    // We need to call __init_wut_malloc somewhere so wut_malloc will be used for the memory allocation.
-    __init_wut_malloc();
     doKernelSetup();
     InitFunctionPointers();
     doKernelSetup2();
 
-    __init_wut();
+    init_wut();
 
     // Save last entry on mem2 heap to detect leaked memory
     MEMHeapHandle mem2_heap_handle = MEMGetBaseHeapHandle(MEM_BASE_HEAP_MEM2);
@@ -105,7 +102,7 @@ extern "C" int _start(int argc, char **argv) {
         OSReport("Freed %d leaked memory blocks\n", leak_count);
     }
 
-    __fini_wut();
+    fini_wut();
 
     if (entrypoint > 0) {
         // clang-format off
