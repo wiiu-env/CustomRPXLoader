@@ -27,8 +27,9 @@ EXPORT_VAR(uint32_t *, MEMFreeToDefaultHeap);
 
 void InitFunctionPointers(void) {
     OSDynLoad_Module handle;
-    addr_OSDynLoad_Acquire    = (void *) 0x0102A3B4;
-    addr_OSDynLoad_FindExport = (void *) 0x0102B828;
+    addr_OSDynLoad_Acquire        = (void *) 0x0102A3B4;
+    addr_OSDynLoad_FindExport     = (void *) 0x0102B828;
+    addr_OSDynLoad_IsModuleLoaded = (void *) 0x0102A59C; // 0200e19c - 0xFE3C00
 
     OSDynLoad_Acquire("coreinit.rpl", &handle);
 
@@ -42,6 +43,7 @@ void InitFunctionPointers(void) {
 
 #include "imports.h"
 
+    OSDynLoad_IsModuleLoaded("coreinit.rpl", &handle);
     // override failed __rplwrap_exit find export
     OSDynLoad_FindExport(handle, 0, "exit", (void **) &addr___rplwrap_exit);
 }

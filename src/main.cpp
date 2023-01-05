@@ -81,7 +81,7 @@ extern "C" int _start(int argc, char **argv) {
     MEMExpHeapBlock *memory_start  = heap->usedList.tail;
 
     initLogging();
-    DEBUG_FUNCTION_LINE("Hello from CustomRPXloader");
+    DEBUG_FUNCTION_LINE("Hello from CustomRPXLoader");
 
     uint32_t entrypoint = do_start(argc, argv);
 

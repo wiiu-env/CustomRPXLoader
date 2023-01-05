@@ -60,6 +60,7 @@ IMPORT(OSGetThreadSpecific);
 IMPORT(OSSetThreadSpecific);
 IMPORT(FSTimeToCalendarTime);
 IMPORT(OSSwapAtomic);
+IMPORT(OSDynLoad_IsModuleLoaded);
 
 IMPORT(exit);
 IMPORT(_Exit);
@@ -248,9 +249,12 @@ IMPORT(VPADGetTPCalibratedPoint);
 IMPORT_END();
 
 
-/* nsyskbd */
+/* zlib125 */
 IMPORT_BEGIN(zlib125);
 
+IMPORT(deflateInit_);
+IMPORT(deflate);
+IMPORT(deflateEnd);
 IMPORT(inflateInit_);
 IMPORT(inflate);
 IMPORT(inflateEnd);
