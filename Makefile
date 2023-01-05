@@ -118,11 +118,13 @@ export LIBPATHS	:=	$(foreach dir,$(LIBDIRS),-L$(dir)/lib) \
 					-L$(LIBOGC_LIB) -L$(PORTLIBS)/lib
 
 export OUTPUT	:=	$(CURDIR)/$(TARGET)
-.PHONY: $(BUILD) clean install
+.PHONY: $(BUILD) clean all
+
+all: $(BUILD)
 
 #---------------------------------------------------------------------------------
 $(BUILD):
-	@[ -d $@ ] || mkdir -p $@
+	@$(shell [ ! -d $(BUILD) ] && mkdir -p $(BUILD))
 	@$(MAKE) --no-print-directory -C $(BUILD) -f $(CURDIR)/Makefile
 
 
@@ -133,6 +135,7 @@ clean:
 
 #---------------------------------------------------------------------------------
 else
+.PHONY:	all
 
 DEPENDS	:=	$(OFILES:.o=.d)
 
