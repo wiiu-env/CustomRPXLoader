@@ -15,29 +15,26 @@
  * along with this program.  If not, see <http://www.gnu.org/licenses/>.
  ****************************************************************************/
 
+#include "ElfUtils.h"
+#include "common/module_defines.h"
+#include "dynamic.h"
+#include "kernel.h"
+#include "module/ModuleData.h"
+#include "module/ModuleDataFactory.h"
+#include "utils/logger.h"
 #include <coreinit/cache.h>
+#include <coreinit/debug.h>
 #include <coreinit/dynload.h>
 #include <coreinit/foreground.h>
+#include <coreinit/memexpheap.h>
 #include <coreinit/screen.h>
 #include <coreinit/title.h>
 #include <cstdint>
+#include <malloc.h>
 #include <nn/act/client_cpp.h>
 #include <proc_ui/procui.h>
 #include <sysapp/launch.h>
-
-#include "ElfUtils.h"
-#include "common/module_defines.h"
-#include "module/ModuleData.h"
-#include "module/ModuleDataFactory.h"
-
 #include <utils/StringTools.h>
-
-#include "dynamic.h"
-#include "kernel.h"
-#include "utils/logger.h"
-#include <coreinit/debug.h>
-#include <coreinit/memexpheap.h>
-#include <malloc.h>
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length);
 
