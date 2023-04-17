@@ -52,6 +52,11 @@ CXXFLAGS += -DDEBUG -g
 CFLAGS += -DDEBUG -g
 endif
 
+ifeq ($(DEBUG),VERBOSE)
+CXXFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
+CFLAGS += -DDEBUG -DVERBOSE_DEBUG -g
+endif
+
 #---------------------------------------------------------------------------------
 Q := @
 MAKEFLAGS += --no-print-directory
