@@ -194,7 +194,7 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
         OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
 
         uint32_t functionAddress = 0;
-        OSDynLoad_FindExport(rplHandle, isData, functionName.c_str(), (void **) &functionAddress);
+        OSDynLoad_FindExport(rplHandle, (OSDynLoad_ExportType) isData, functionName.c_str(), (void **) &functionAddress);
         if (functionAddress == 0) {
             return false;
         }
