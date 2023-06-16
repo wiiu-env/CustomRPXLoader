@@ -203,7 +203,7 @@ std::vector<RelocationData> ModuleDataFactory::getImportRelocationData(const elf
                 Elf64_Addr sym_value;
 
                 if (!rel.get_entry(j, offset, symbol, type, addend)) {
-                    OSFatal("Failed to get relocation");
+                    OSFatal("CustomRPXLoader: get_entry failed");
                     return {};
                 }
                 symbol_section_accessor symbols(reader, reader.sections[(Elf_Half) psec->get_link()]);
@@ -217,7 +217,7 @@ std::vector<RelocationData> ModuleDataFactory::getImportRelocationData(const elf
 
                 if (!symbols.get_symbol(symbol, sym_name, sym_value, size,
                                         bind, symbolType, sym_section_index, other)) {
-                    OSFatal("Failed to get relocation");
+                    OSFatal("CustomRPXLoader: get_symbol failed");
                     return {};
                 }
 
@@ -261,7 +261,7 @@ bool ModuleDataFactory::linkSection(const elfio &reader, uint32_t section_index,
                 Elf64_Addr sym_value;
 
                 if (!rel.get_entry(j, offset, symbol, type, addend)) {
-                    OSFatal("Failed to get relocation");
+                    OSFatal("CustomRPXLoader: get_entry failed");
                     return {};
                 }
                 symbol_section_accessor symbols(reader, reader.sections[(Elf_Half) psec->get_link()]);
@@ -275,7 +275,7 @@ bool ModuleDataFactory::linkSection(const elfio &reader, uint32_t section_index,
 
                 if (!symbols.get_symbol(symbol, sym_name, sym_value, size,
                                         bind, symbolType, sym_section_index, other)) {
-                    OSFatal("Failed to get relocation");
+                    OSFatal("CustomRPXLoader: get_symbol failed");
                     return {};
                 }
 
