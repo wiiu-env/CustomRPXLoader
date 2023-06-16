@@ -119,6 +119,7 @@ uint32_t do_start(int argc, char **argv) {
         std::vector<RelocationData> relocData = moduleData->getRelocationDataList();
         if (!doRelocation(relocData, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH)) {
             DEBUG_FUNCTION_LINE("relocations failed");
+            OSFatal("Relocations failed");
         }
         if (moduleData->getBSSAddr() != 0) {
             DEBUG_FUNCTION_LINE("memset .bss %08X (%d)", moduleData->getBSSAddr(), moduleData->getBSSSize());
