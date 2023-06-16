@@ -72,32 +72,12 @@ extern "C" int _start(int argc, char **argv) {
 
     init_wut();
 
-    // Save last entry on mem2 heap to detect leaked memory
-    MEMHeapHandle mem2_heap_handle = MEMGetBaseHeapHandle(MEM_BASE_HEAP_MEM2);
-    auto heap                      = (MEMExpHeap *) mem2_heap_handle;
-    MEMExpHeapBlock *memory_start  = heap->usedList.tail;
-
     initLogging();
     DEBUG_FUNCTION_LINE("Hello from CustomRPXLoader");
 
     uint32_t entrypoint = do_start(argc, argv);
 
     deinitLogging();
-
-    // free leaked memory
-    if (memory_start) {
-        int leak_count = 0;
-        while (true) {
-            MEMExpHeapBlock *memory_end = heap->usedList.tail;
-            if (memory_end == memory_start) {
-                break;
-            }
-            auto mem_ptr = &memory_end[1]; // &memory_end + sizeof(MEMExpHeapBlock);
-            free(mem_ptr);
-            leak_count++;
-        }
-        OSReport("Freed %d leaked memory blocks\n", leak_count);
-    }
 
     fini_wut();
 
