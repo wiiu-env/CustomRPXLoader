@@ -74,7 +74,8 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
         return {};
     }
 
-    uint32_t baseOffset = (destination_address - sizeOfModule) & 0xFFFFFF00;
+    uint32_t targetAddress = (destination_address - sizeOfModule) & 0xFFFFFF00;
+    uint32_t baseOffset    = targetAddress;
 
     uint32_t offset_text = baseOffset;
     uint32_t offset_data = offset_text;
@@ -161,10 +162,10 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
         moduleData.addRelocationData(reloc);
     }
 
-    DEBUG_FUNCTION_LINE("DCFlushRange %08X - %08X", baseOffset, baseOffset + totalSize);
-    DCFlushRange((void *) baseOffset, totalSize);
-    DEBUG_FUNCTION_LINE("ICInvalidateRange %08X - %08X", baseOffset, baseOffset + totalSize);
-    ICInvalidateRange((void *) baseOffset, totalSize);
+    DEBUG_FUNCTION_LINE("DCFlushRange %08X - %08X", targetAddress, destination_address);
+    DCFlushRange((void *) targetAddress, destination_address - targetAddress);
+    DEBUG_FUNCTION_LINE("ICInvalidateRange %08X - %08X", targetAddress, destination_address);
+    ICInvalidateRange((void *) targetAddress, destination_address - targetAddress);
 
     free(destinations);
     free(buffer);
