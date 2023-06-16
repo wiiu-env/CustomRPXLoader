@@ -166,17 +166,33 @@ uint32_t do_start(int argc, char **argv) {
 }
 
 bool doRelocation(const std::vector<RelocationData> &relocData, relocation_trampolin_entry_t *tramp_data, uint32_t tramp_length) {
+    std::map<std::string, OSDynLoad_Module> usedRPls;
     for (auto const &curReloc : relocData) {
         const RelocationData &cur  = curReloc;
         std::string functionName   = cur.getName();
         std::string rplName        = cur.getImportRPLInformation().getName();
         int32_t isData             = cur.getImportRPLInformation().isData();
         OSDynLoad_Module rplHandle = nullptr;
-        OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
+
+        if (!usedRPls.contains(rplName)) {
+            DEBUG_FUNCTION_LINE_VERBOSE("Acquire %s", rplName.c_str());
+            // Always acquire to increase refcount and make sure it won't get unloaded while we're using it.
+            OSDynLoad_Error err = OSDynLoad_Acquire(rplName.c_str(), &rplHandle);
+            if (err != OS_DYNLOAD_OK) {
+                DEBUG_FUNCTION_LINE_ERR("Failed to acquire %s", rplName.c_str());
+                return false;
+            }
+            // Keep track RPLs we are using.
+            // They will be released on exit (See: AromaBaseModule)
+            usedRPls[rplName] = rplHandle;
+        } else {
+            DEBUG_FUNCTION_LINE_VERBOSE("Use from usedRPLs cache! %s", rplName.c_str());
+        }
+        rplHandle = usedRPls[rplName];
 
         uint32_t functionAddress = 0;
-        OSDynLoad_FindExport(rplHandle, (OSDynLoad_ExportType) isData, functionName.c_str(), (void **) &functionAddress);
-        if (functionAddress == 0) {
+        if ((OSDynLoad_FindExport(rplHandle, (OSDynLoad_ExportType) isData, functionName.c_str(), (void **) &functionAddress) != OS_DYNLOAD_OK) || functionAddress == 0) {
+            DEBUG_FUNCTION_LINE_ERR("Failed to find export \"\"", functionName.c_str());
             return false;
         }
         if (!ElfUtils::elfLinkOne(cur.getType(), cur.getOffset(), cur.getAddend(), (uint32_t) cur.getDestination(), functionAddress, tramp_data, tramp_length, RELOC_TYPE_IMPORT)) {
