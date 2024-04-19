@@ -186,7 +186,7 @@ bool doRelocation(const std::vector<RelocationData> &relocData, relocation_tramp
             // They will be released on exit (See: AromaBaseModule)
             usedRPls[rplName] = rplHandle;
         } else {
-            DEBUG_FUNCTION_LINE_VERBOSE("Use from usedRPLs cache! %s", rplName.c_str());
+            //DEBUG_FUNCTION_LINE_VERBOSE("Use from usedRPLs cache! %s", rplName.c_str());
         }
         rplHandle = usedRPls[rplName];
 
