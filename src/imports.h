@@ -61,6 +61,7 @@ IMPORT(OSSetThreadSpecific);
 IMPORT(FSTimeToCalendarTime);
 IMPORT(OSSwapAtomic);
 IMPORT(OSDynLoad_IsModuleLoaded);
+IMPORT(OSIsDebuggerPresent);
 
 IMPORT(exit);
 IMPORT(_Exit);
