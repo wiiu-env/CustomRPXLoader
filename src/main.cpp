@@ -111,8 +111,8 @@ uint32_t do_start(int argc, char **argv) {
 
     std::string filepath("fs:/vol/external01/wiiu/payload.rpx");
     int result = 0;
-    // The module will be loaded to 0x00FFF000 - sizeof(payload.rpx)
-    std::optional<ModuleData> moduleData = ModuleDataFactory::load(filepath, 0x00FFF000, 0x00FFF000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
+    // The module will be loaded to 0x00FD0000 - sizeof(payload.rpx)
+    std::optional<ModuleData> moduleData = ModuleDataFactory::load(filepath, 0x00FD0000, 0x00FD0000 - moduleDataStartAddress, gModuleData->trampolines, DYN_LINK_TRAMPOLIN_LIST_LENGTH);
     if (moduleData) {
         DEBUG_FUNCTION_LINE("Loaded module data");
         std::vector<RelocationData> relocData = moduleData->getRelocationDataList();
