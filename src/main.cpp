@@ -64,7 +64,6 @@ bool CheckRunning() {
 extern "C" void init_wut();
 extern "C" void fini_wut();
 
-extern "C" int _start(int argc, char **argv) __attribute__((section(".start_code")));
 extern "C" int _start(int argc, char **argv) {
     doKernelSetup();
     InitFunctionPointers();
