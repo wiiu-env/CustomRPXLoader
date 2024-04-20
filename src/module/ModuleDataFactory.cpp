@@ -18,6 +18,7 @@
 #include "ModuleDataFactory.h"
 #include "../ElfUtils.h"
 #include "../utils/FileUtils.h"
+#include "utils/OnLeavingScope.h"
 #include "utils/wiiu_zlib.hpp"
 #include <coreinit/cache.h>
 #include <coreinit/debug.h>
@@ -38,21 +39,20 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
         DEBUG_FUNCTION_LINE("Failed to load file");
         return {};
     }
+    auto cleanupBuffer = onLeavingScope([buffer]() { free(buffer); });
 
     // Load ELF data
     if (!reader.load(reinterpret_cast<char *>(buffer), fsize)) {
         DEBUG_FUNCTION_LINE("Can't find or process %s", path.c_str());
-        free(buffer);
         return {};
     }
 
     uint32_t sec_num = reader.sections.size();
 
-    auto **destinations = (uint8_t **) malloc(sizeof(uint8_t *) * sec_num);
-
+    auto destinations = make_unique_nothrow<uint8_t *[]>(sec_num);
     if (!destinations) {
-        DEBUG_FUNCTION_LINE("Failed to alloc memory for destinations");
-        free(buffer);
+        DEBUG_FUNCTION_LINE_ERR("Failed alloc memory for destinations array");
+        return {};
     }
 
     uint32_t sizeOfModule = 0;
@@ -69,8 +69,6 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
 
     if (sizeOfModule > maximum_size) {
         DEBUG_FUNCTION_LINE("Module is too big.");
-        free(buffer);
-        free(destinations);
         return {};
     }
 
@@ -107,17 +105,22 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
                 destinations[psec->get_index()] -= 0x10000000;
             } else if (address >= 0xC0000000) {
                 DEBUG_FUNCTION_LINE("Loading section from 0xC0000000 is NOT supported");
-                free(destinations);
-                free(buffer);
                 return {};
             } else {
                 DEBUG_FUNCTION_LINE("Unhandled case");
-                free(destinations);
-                free(buffer);
                 return {};
             }
 
             const char *p = reader.sections[i]->get_data();
+
+            if (destination < targetAddress) {
+                DEBUG_FUNCTION_LINE_ERR("Tried to underflow buffer. %08X < %08X", destination, targetAddress);
+                OSFatal("CustomRPXLoader: Tried to underflow buffer");
+            }
+            if (destination + sectionSize > destination_address) {
+                DEBUG_FUNCTION_LINE_ERR("Tried to overflow buffer. %08X > %08X", destination + sectionSize, destination_address);
+                OSFatal("CustomRPXLoader: Tried to overflow buffer");
+            }
 
             if (psec->get_type() == SHT_NOBITS) {
                 DEBUG_FUNCTION_LINE("memset section %s %08X [%08X] to 0 (%d bytes)", psec->get_name().c_str(), destination, destination + sectionSize, sectionSize);
@@ -150,13 +153,11 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
             DEBUG_FUNCTION_LINE("Linking (%d)... %s", i, psec->get_name().c_str());
             if (!linkSection(reader, psec->get_index(), (uint32_t) destinations[psec->get_index()], offset_text, offset_data, trampolin_data, trampolin_data_length)) {
                 DEBUG_FUNCTION_LINE("elfLink failed");
-                free(destinations);
-                free(buffer);
                 return {};
             }
         }
     }
-    std::vector<RelocationData> relocationData = getImportRelocationData(reader, destinations);
+    std::vector<RelocationData> relocationData = getImportRelocationData(reader, destinations.get());
 
     for (auto const &reloc : relocationData) {
         moduleData.addRelocationData(reloc);
@@ -166,9 +167,6 @@ ModuleDataFactory::load(const std::string &path, uint32_t destination_address, u
     DCFlushRange((void *) targetAddress, destination_address - targetAddress);
     DEBUG_FUNCTION_LINE("ICInvalidateRange %08X - %08X", targetAddress, destination_address);
     ICInvalidateRange((void *) targetAddress, destination_address - targetAddress);
-
-    free(destinations);
-    free(buffer);
 
     moduleData.setEntrypoint(entrypoint);
     DEBUG_FUNCTION_LINE("Saved entrypoint as %08X", entrypoint);
